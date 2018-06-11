@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RokidSdkDemo</string>
+    <string name="collect_audio">收集音频</string>
+    <string name="recognition_audio_file">识别音频</string>
+    <string name="stop_collection_audio">结束音频收集</string>
+    <string name="record_audio">录制音频</string>
+    <string name="test_status">共%d次测试 当前第%d测试 成功%d次</string>
+    <string name="file_status">共%d次文件测试 当前第%d个文件 </string>
+</resources>

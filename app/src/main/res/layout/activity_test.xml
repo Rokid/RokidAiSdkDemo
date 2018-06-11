@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.rokid.ai.sdkdemo.TestActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_init_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="启动服务" />
+
+        <Button
+            android:id="@+id/btn_init_test_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="加载测试文件" />
+
+        <Button
+            android:id="@+id/btn_test_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do useless test" />
+
+        <TextView
+            android:id="@+id/tv_test_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/tv_success"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUCCESS!!!!!"
+            android:textColor="@color/colorRed"
+            android:textSize="40sp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tv_file_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+</ScrollView>
