@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RokidSdkDemo</string>
+    <string name="app_name">Rokid语音</string>
     <string name="collect_audio">收集音频</string>
     <string name="recognition_audio_file">识别音频</string>
     <string name="stop_collection_audio">结束音频收集</string>

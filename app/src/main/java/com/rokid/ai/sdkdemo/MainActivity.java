@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,21 +21,16 @@ import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.util.Logger;
-import com.rokid.ai.audioai.util.ShellUtil;
-import com.rokid.ai.sdkdemo.util.PerssionManager;
-
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {

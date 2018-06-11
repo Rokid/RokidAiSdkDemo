@@ -73,12 +73,19 @@ public class SplashActivity extends AppCompatActivity {
 
     public void onClick(View view) {
 
+        Intent it ;
         switch (view.getId()) {
             case R.id.btn_phone_test_splash_activity:
-                Log.d("theonClick", "the onClick is called");
-                Intent it = new Intent(this, PhoneTestActivity.class);
+                Log.d("theonClick", "the onClick btn_phone_test_splash_activity is called");
+                it = new Intent(this, PhoneTestActivity.class);
                 startActivity(it);
                 break;
+            case R.id.btn_phone_test_new_sdk_splash_activity:
+                Log.d("theonClick", "the onClick btn_phone_test_new_sdk_splash_activity is called");
+                it = new Intent(this, PhoneAudioNewSDKActivity.class);
+                startActivity(it);
+                break;
+
         }
     }
 }

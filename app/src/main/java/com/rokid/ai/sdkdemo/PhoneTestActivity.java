@@ -6,7 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.RemoteException;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,13 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rokid.ai.audioai.afe.AfeParam;
-import com.rokid.ai.audioai.afe.FileWriteReadSdcard;
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
 
-import org.w3c.dom.Text;
+
+import java.util.UUID;
 
 public class PhoneTestActivity extends Activity {
 
@@ -40,6 +41,7 @@ public class PhoneTestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_test);
 
+        requestPermission();
         mTextView =  findViewById(R.id.tv_show_asr_audio_phone_test);
         mContext = this;
     }
@@ -124,6 +126,16 @@ public class PhoneTestActivity extends Activity {
         }
     }
 
+    public void requestPermission() {
+        PerssionManager.requestPerrion(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        PerssionManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     private void prepareAfe(int status) {
         // 初始化算法处理中心
 
@@ -133,12 +145,14 @@ public class PhoneTestActivity extends Activity {
         } else if(status == 1) {
             mRokidAFEProxy.addResultListener(new ServerConfig("workdir_asr_cn","phonetest2", false), mAudioAiListener);
         }
+
+        String strTemp = UUID.randomUUID().toString().replace("-", "");
         AfeParam param = new AfeParam();
         param.mustInit = true;
         param.key = "BBF450D04CC14DBD88E960CF5D4DD697";
         param.secret = "29F84556B84441FC885300CD6A85CA70";
         param.deviceTypeId = "3301A6600C6D44ADA27A5E58F5838E02";
-        param.deviceId = "57E741770A1241CX";
+        param.deviceId = strTemp;
         startAfeServer(param);
     }
 
@@ -179,7 +193,7 @@ public class PhoneTestActivity extends Activity {
                     int bufferReadResult;
                     while (isRecording) {
                         bufferReadResult = mAudioRecord.read(buffer, 0, length);
-                        FileWriteReadSdcard.writeToAudiojavaoutFile(buffer);
+                       // FileWriteReadSdcard.writeToAudiojavaoutFile(buffer);
                         mRokidAFEProxy.addPcmData(bufferReadResult, buffer);
                     }
 
@@ -209,7 +223,9 @@ public class PhoneTestActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+
         mRokidAFEProxy.onDestroy();
+        finish();
         super.onDestroy();
     }
 }

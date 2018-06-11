@@ -20,9 +20,18 @@
         android:supportsRtl="true"
         android:testOnly="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation"></activity>
-        <activity android:name=".OtherAudioActivity" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation"></activity>
-        <activity android:name=".TestActivity" android:screenOrientation="landscape" android:configChanges="keyboardHidden|orientation"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".OtherAudioActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".TestActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,8 +39,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".PhoneTestActivity"></activity>
+        <activity
+            android:name=".PhoneTestActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".PhoneAudioNewSDKActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>
