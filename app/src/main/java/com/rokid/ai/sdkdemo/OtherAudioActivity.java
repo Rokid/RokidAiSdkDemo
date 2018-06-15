@@ -2,7 +2,6 @@ package com.rokid.ai.sdkdemo;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,7 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rokid.ai.audioai.AudioAiService;
+import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
@@ -72,6 +71,7 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
     private int testFileIndex = 0;
     private int mTestCode;
     private boolean mSocketConnect;
+    private RecordClientManager mRecordClientManager;
 
     private boolean mIgnoreSuppressAudioVolume = false;
 
@@ -93,9 +93,11 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
         File folder = new File(Environment.getExternalStorageDirectory() + "/" + "testFile");
         testFileList = folder.listFiles();
 
-        bindService(new Intent(this, AudioAiService.class), mAiServiceConnection, BIND_AUTO_CREATE);
+        bindService(AudioAiConfig.getIndependentIntent(this), mAiServiceConnection, BIND_AUTO_CREATE);
 
         mAsrControlPresenter = new AsrControlPresenterImpl(this, mAsrUiView);
+
+        mRecordClientManager = new RecordClientManager();
     }
 
     public void initView() {
@@ -153,12 +155,6 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
         @Override
-        public void onPcmResult(long len, byte[] bytes) throws RemoteException {
-//            Logger.d(TAG, "onPcmResult Thread：" + Thread.currentThread().getName());
-            showPcmData(len, bytes);
-        }
-
-        @Override
         public void onIntermediateSlice(String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateSlice(): asr = " + asr);
             if (mAsrControlPresenter != null) {
@@ -208,7 +204,14 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
             // SDK Server端数据接收服务已经准备好，启动ClientSocket来发送数据
             // mConnnectListener：socket连接状态监听
             // ClientSocket带自动重连功能
-            RecordClientManager.getInstance().startSocket(ip, port, mConnnectListener);
+            if (mRecordClientManager != null) {
+                mRecordClientManager.startSocket(ip, port, mConnnectListener);
+            }
+        }
+
+        @Override
+        public void onPcmServerPrepared() throws RemoteException {
+
         }
     };
 
@@ -263,7 +266,9 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
                     }
                     if (count == 4224) {
                         // 将数据通过socket来传递给SDK
-                        RecordClientManager.getInstance().sendRecordData(myte);
+                        if (mRecordClientManager != null) {
+                            mRecordClientManager.sendRecordData(myte);
+                        }
                         Thread.sleep(50);
                     }
                 }
@@ -534,6 +539,10 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
 
         mHander.removeCallbacksAndMessages(this);
         mHander = null;
+        mSocketConnect = false;
+        mRecordClientManager.onDestroy();
+        mRecordClientManager = null;
+
         unbindService(mAiServiceConnection);
 
         super.onDestroy();

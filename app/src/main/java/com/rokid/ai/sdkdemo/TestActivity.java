@@ -55,12 +55,6 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
         @Override
-        public void onPcmResult(long len, byte[] bytes) throws RemoteException {
-            String s = "onPcmResult(): len = " + len + "\n\r";
-            Logger.d(TAG, s);
-        }
-
-        @Override
         public void onIntermediateSlice(String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
             Logger.d(TAG, s);
@@ -101,6 +95,11 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onServerSocketCreate(String ip, int post) throws RemoteException {
+
+        }
+
+        @Override
+        public void onPcmServerPrepared() throws RemoteException {
 
         }
 

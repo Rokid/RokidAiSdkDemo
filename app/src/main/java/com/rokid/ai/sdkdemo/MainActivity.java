@@ -16,14 +16,17 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rokid.ai.audioai.AudioAiService;
+import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
+import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
 import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
+
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
-import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
 import java.io.BufferedReader;
@@ -62,6 +65,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean mIgnoreSuppressAudioVolume = false;
 
+    private Intent mServiceIntent;
+
+    private PcmClientManager mPcmClientManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +84,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         requestPermission();
 
-        bindService(new Intent(this, AudioAiService.class), mAiServiceConnection, BIND_AUTO_CREATE);
+        mServiceIntent = AudioAiConfig.getIndependentIntent(this);
+        bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
+
+        mPcmClientManager = new PcmClientManager();
 
         mAsrControlPresenter = new AsrControlPresenterImpl(this, mAsrUiView);
 
@@ -140,12 +150,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
         @Override
-        public void onPcmResult(long len, byte[] bytes) throws RemoteException {
-//            Logger.d(TAG, "onPcmResult Thread：" + Thread.currentThread().getName());
-            showPcmData(len, bytes);
-        }
-
-        @Override
         public void onIntermediateSlice(String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateSlice(): asr = " + asr);
             if (mAsrControlPresenter != null) {
@@ -189,6 +193,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onServerSocketCreate(String ip, int post) throws RemoteException {
 
+        }
+
+        @Override
+        public void onPcmServerPrepared() throws RemoteException {
+            if (mPcmClientManager != null) {
+                mPcmClientManager.startSocket(null, mPcmReceiver);
+            }
+        }
+    };
+
+    private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {
+        @Override
+        public void onPcmReceive(int length, byte[] data) {
+            showPcmData(length, data);
         }
     };
 
@@ -430,7 +448,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         mContext = null;
-
+        if (mPcmClientManager != null) {
+            mPcmClientManager.onDestroy();
+            mPcmClientManager = null;
+        }
         mAsrUiView = null;
 
         mAsrControlPresenter.releaseMediaPlay();
@@ -440,6 +461,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mHander.removeCallbacksAndMessages(this);
         mHander = null;
         unbindService(mAiServiceConnection);
+
+        mServiceIntent = null;
 
         super.onDestroy();
     }
