@@ -5,24 +5,20 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rokid.ai.audioai.afe.AfeParam;
-import com.rokid.ai.audioai.afe.FileWriteReadSdcard;
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
-
-import org.w3c.dom.Text;
 
 import java.util.UUID;
 

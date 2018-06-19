@@ -6,62 +6,62 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.audiodemo.MainActivity">
+    tools:context="com.rokid.ai.sdkdemo.OtherAudioActivity">
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="100px"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/main_test_tv"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="100px"
+            android:layout_height="100px"
             android:gravity="center"
             android:textColor="#0066FF"
-            android:textSize="20sp" />
+            android:textSize="20px" />
 
         <TextView
             android:id="@+id/main_total_state_tv"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_width="0px"
+            android:layout_height="100px"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="#0066FF"
-            android:textSize="20sp" />
+            android:textSize="20px" />
 
         <TextView
             android:id="@+id/main_file_state_tv"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_width="0px"
+            android:layout_height="100px"
             android:layout_weight="1"
             android:gravity="center"
             android:textColor="#0066FF"
-            android:textSize="20sp" />
+            android:textSize="20px" />
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/main_ast_pcm_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="0.5"
         android:gravity="center_vertical"
-        android:paddingLeft="20dp"
+        android:paddingLeft="20px"
         android:textColor="#0066FF"
-        android:textSize="20sp" />
+        android:textSize="20px" />
 
     <TextView
         android:id="@+id/main_ast_activation_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="0.5"
         android:gravity="center_vertical"
-        android:paddingLeft="20dp"
+        android:paddingLeft="20px"
         android:textColor="#000000"
-        android:textSize="20sp" />
+        android:textSize="20px" />
 
 
     <TextView
@@ -77,40 +77,40 @@
     <TextView
         android:id="@+id/main_ast_result_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="3"
         android:gravity="center_vertical"
-        android:paddingLeft="20dp"
+        android:paddingLeft="20px"
         android:textColor="#ff4d4d"
-        android:textSize="25sp" />
+        android:textSize="25px" />
 
     <TextView
         android:id="@+id/main_ast_npl_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:paddingLeft="16dp"
+        android:paddingLeft="16px"
         android:textColor="#009900"
-        android:textSize="14sp" />
+        android:textSize="14px" />
 
     <TextView
         android:id="@+id/main_ast_action_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:paddingLeft="16dp"
+        android:paddingLeft="16px"
         android:textColor="#018786"
-        android:textSize="14sp" />
+        android:textSize="14px" />
 
     <TextView
         android:id="@+id/main_ast_error_tv"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0px"
         android:layout_weight="0.5"
         android:gravity="center"
         android:textColor="#FFFFFF"
-        android:textSize="15sp" />
+        android:textSize="15px" />
 
 </LinearLayout>

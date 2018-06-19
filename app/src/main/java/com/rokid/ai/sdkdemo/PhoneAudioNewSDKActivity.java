@@ -7,17 +7,16 @@ import android.content.ServiceConnection;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rokid.ai.audioai.AudioAiConfig;
-import com.rokid.ai.audioai.AudioAiService;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
@@ -117,6 +116,19 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         mFileStateTv = findViewById(R.id.main_file_state_tv);
 
         ((TextView) findViewById(R.id.main_test_tv)).setText("Other : " + mTestCode);
+
+        findViewById(R.id.main_ast_npl_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setAngle(100);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 
@@ -139,7 +151,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
     }
 
 
-    public void requestPermission() {
+     public void requestPermission() {
         PerssionManager.requestPerrion(this);
     }
 
@@ -509,6 +521,35 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                 mAsrControlPresenter = new AsrControlPresenterImpl(mContext, mAsrUiView);
                 findViewById(R.id.btn_start_doubel_phone_audio_new_sdk).setClickable(false);
                 findViewById(R.id.btn_start_signle_phone_audio_new_sdk).setVisibility(View.GONE);
+                break;
+            case R.id.btn_other_pickup_open:
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setPickUp(true);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.btn_other_pickup_close:
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setPickUp(false);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.btn_other_set_angle:
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setAngle(100);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
                 break;
         }
 

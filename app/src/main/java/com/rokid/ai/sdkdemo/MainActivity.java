@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -23,10 +23,9 @@ import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
 import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
 import com.rokid.ai.audioai.util.Logger;
-import com.rokid.ai.sdkdemo.util.PerssionManager;
-
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
 import java.io.BufferedReader;

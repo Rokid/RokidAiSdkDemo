@@ -1,11 +1,12 @@
 package com.rokid.ai.sdkdemo;
 
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -126,6 +128,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+        requestPermission();
         initView();
     }
 
@@ -157,20 +160,23 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         startAfeServer(param);
     }
 
+    private int frameSize = 4224;
     private void putPcmData(File pcmFile) {
         FileInputStream mFIleInput = null;
         try {
+
             mFIleInput = new FileInputStream(pcmFile);
-            byte[] myte = new byte[4224];
+            byte[] myte = new byte[frameSize];
             int count = 0;
             while ((count = mFIleInput.read(myte)) > 0) {
 
-                if (count != 4224) {
+                if (count != frameSize) {
                     Log.d("count", "the count is error not 16128");
                 }
-                if (count == 4224) {
+                if (count == frameSize) {
+                    Log.d(TAG, "the frameSzie is " + frameSize);
                     mRokidAFEProxy.addPcmData(count, myte);
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 }
             }
 
@@ -263,9 +269,24 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 tvFileList.setText(s);
                 break;
-            default:
+            case R.id.btn_angle_activity_test:
 
+                mRokidAFEProxy.setAngle(89);
+                break;
+            default:
                 break;
         }
     }
+    public void requestPermission() {
+        PerssionManager.requestPerrion(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        PerssionManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+
 }

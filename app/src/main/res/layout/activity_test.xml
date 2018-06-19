@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.audiodemo.TestActivity">
+    tools:context="com.rokid.ai.sdkdemo.TestActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,6 +29,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Do useless test" />
+
+        <Button
+            android:id="@+id/btn_angle_activity_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置寻向"
+            android:onClick="onClick"
+            />
 
         <TextView
             android:id="@+id/tv_test_status"
