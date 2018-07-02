@@ -2,6 +2,7 @@ package com.rokid.ai.sdkdemo;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
@@ -75,6 +76,8 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
 
     private boolean mIgnoreSuppressAudioVolume = false;
 
+    private Intent mServiceIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +92,11 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
         initView();
 
         requestPermission();
+
+        mServiceIntent = AudioAiConfig.getIndependentIntent(this);
+        mServiceIntent.putExtra(AudioAiConfig.PARAM_SERVICE_START_CONFIG, getServiceConfig());
+        startService(mServiceIntent);
+
 
         File folder = new File(Environment.getExternalStorageDirectory() + "/" + "testFile");
         testFileList = folder.listFiles();
@@ -122,7 +130,7 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
             if (service != null) {
                 mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
                 try {
-                    mAudioAiService.srartAudioAiServer(getServiceConfig(), mAudioAiListener);
+                    mAudioAiService.registAudioAiListener(mAudioAiListener);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }

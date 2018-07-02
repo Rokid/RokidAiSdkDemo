@@ -78,6 +78,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
     private PcmClientManager mPcmSocketManager;
 
     private Intent mServiceIntent;
+    private ServerConfig mServerConfig;
 
 
     @Override
@@ -88,10 +89,6 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         mContext = this;
 
         initView();
-
-//        bindService(new Intent(mContext, AudioAiService.class), mAiServiceConnection, BIND_AUTO_CREATE);
-//        mAsrControlPresenter = new AsrControlPresenterImpl(mContext, mAsrUiView);
-
 
         requestPermission();
 
@@ -162,6 +159,9 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
     }
 
     private void createConnection() {
+        if (mAiServiceConnection != null) {
+            return;
+        }
         mAiServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -171,8 +171,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                     Logger.d(TAG, "the onServiceConenct is called111");
                     mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
                     try {
-                        Logger.d(TAG, "the onServiceConenct is called222");
-                        mAudioAiService.srartAudioAiServer(getServiceConfig(mSingleDoubleStatus), mAudioAiListener);
+                        Logger.d(TAG, "the onServiceConenct is called222" + mSingleDoubleStatus);
+                        mAudioAiService.registAudioAiListener(mAudioAiListener);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -188,12 +188,13 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+
         @Override
         public void onIntermediateSlice(String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
             Logger.d(TAG, s);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, true);
+                mAsrControlPresenter.showAsrResultText(asr, false);
             }
 
         }
@@ -213,8 +214,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         @Override
         public void onCompleteNlp(String nlp, String action) throws RemoteException {
 
-            String s = "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r";
-            Logger.d(TAG, s);
+            Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r");
 
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showAsrNlpText(nlp, action);
@@ -259,9 +259,14 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                     int bufferSize = 0;
                     if(mSingleDoubleStatus == 0) {
                         bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL, AudioFormat.ENCODING_PCM_16BIT);
+                        bufferSize = bufferSize * 3;
                     } else if(mSingleDoubleStatus == 1) {
                         bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNELDOUBLE, AudioFormat.ENCODING_PCM_16BIT);
+                        bufferSize = bufferSize * 6;
                     }
+
+
+
                     if(mAudioRecord == null) {
 
                         if(mSingleDoubleStatus == 0) {
@@ -279,18 +284,13 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                         }
 
                         isRecording = true;
-                        int length = 2560;
-                        byte[] buffer = new byte[length];
+                        byte[] buffer = new byte[bufferSize];
                         mAudioRecord.startRecording();
-                        Logger.d(TAG, "the pcm data is" + bufferSize);
+                        Logger.d(TAG, "$$$$$$$$$$ the pcm data is " + bufferSize);
+
                         int bufferReadResult;
                         while (isRecording) {
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            bufferReadResult = mAudioRecord.read(buffer, 0, length);
+                            bufferReadResult = mAudioRecord.read(buffer, 0, bufferSize);
                             if (mCanSendPcm) {
 //                                Logger.d(TAG, "sendRecordData data is" + bufferSize);
                                 if (mRecordClientManager != null) {
@@ -312,6 +312,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                 mPcmSocketManager.startSocket(null, mPcmReceiver);
             }
         }
+
+
 
     };
 
@@ -483,12 +485,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         }
 
         try {
-            if (isBindService) {
-                unbindService(mAiServiceConnection);
-            }
-//            stopService(new Intent(mContext, AudioAiService.class));
-        } catch (Exception e) {
-            e.printStackTrace();
+            unbindService(mAiServiceConnection);
+        } catch (Throwable e) {
         }
 
         mPcmSocketManager.onDestroy();
@@ -497,6 +495,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         mRecordClientManager.onDestroy();
         mRecordClientManager = null;
 
+//        stopService(mServiceIntent);
+
         super.onDestroy();
     }
 
@@ -504,23 +504,31 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
 
         Logger.d(TAG, "the Phone AudioNewSDKActivity called");
         switch (view.getId()) {
-            case R.id.btn_start_signle_phone_audio_new_sdk:
+            case R.id.btn_start_single_phone_audio_new_sdk:
                 mSingleDoubleStatus = 0;
+                mServerConfig = getServiceConfig(mSingleDoubleStatus);
+                mServiceIntent.putExtra(AudioAiConfig.PARAM_SERVICE_START_CONFIG, mServerConfig);
+                startService(mServiceIntent);
+
                 createConnection();
-                Logger.d(TAG, "the Phone AudioNewSDKActivity called11111");
+                Logger.d(TAG, "the Phone AudioNewSDKActivity called single");
                 bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
                 mAsrControlPresenter = new AsrControlPresenterImpl(mContext, mAsrUiView);
-                findViewById(R.id.btn_start_signle_phone_audio_new_sdk).setClickable(false);
-                findViewById(R.id.btn_start_doubel_phone_audio_new_sdk).setVisibility(View.GONE);
+                findViewById(R.id.btn_start_single_phone_audio_new_sdk).setClickable(false);
+                findViewById(R.id.btn_start_double_phone_audio_new_sdk).setVisibility(View.GONE);
                 break;
-            case R.id.btn_start_doubel_phone_audio_new_sdk:
+            case R.id.btn_start_double_phone_audio_new_sdk:
                 mSingleDoubleStatus = 1;
+                mServerConfig = getServiceConfig(mSingleDoubleStatus);
+                mServiceIntent.putExtra(AudioAiConfig.PARAM_SERVICE_START_CONFIG, mServerConfig);
+                startService(mServiceIntent);
+
                 createConnection();
-                Logger.d(TAG, "the Phone AudioNewSDKActivity calledw2222");
+                Logger.d(TAG, "the Phone AudioNewSDKActivity called double");
                 bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
                 mAsrControlPresenter = new AsrControlPresenterImpl(mContext, mAsrUiView);
-                findViewById(R.id.btn_start_doubel_phone_audio_new_sdk).setClickable(false);
-                findViewById(R.id.btn_start_signle_phone_audio_new_sdk).setVisibility(View.GONE);
+                findViewById(R.id.btn_start_double_phone_audio_new_sdk).setClickable(false);
+                findViewById(R.id.btn_start_single_phone_audio_new_sdk).setVisibility(View.GONE);
                 break;
             case R.id.btn_other_pickup_open:
                 try {

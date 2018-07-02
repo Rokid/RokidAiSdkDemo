@@ -20,6 +20,7 @@
         android:supportsRtl="true"
         android:testOnly="false"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -47,6 +48,15 @@
             android:name=".PhoneAudioNewSDKActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="landscape" />
+
+        <service android:name=".service.TipsService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.rokid.ai.demo.TipsService"></action>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

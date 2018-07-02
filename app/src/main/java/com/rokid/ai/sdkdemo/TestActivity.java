@@ -149,7 +149,8 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void testPrepare() {
         // 初始化算法处理中心
         mRokidAFEProxy = new RokidAFEProxy(this);
-        mRokidAFEProxy.addResultListener(new ServerConfig("workdir_asr_cn","ttc", false), mAudioAiListener);
+        mRokidAFEProxy.setCurrentConfig(new ServerConfig("workdir_asr_cn","ttc", false));
+        mRokidAFEProxy.addResultListener(mAudioAiListener);
 
         AfeParam param = new AfeParam();
         param.mustInit = true;
@@ -159,6 +160,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         param.deviceId = "57E741770A1241CP";
         startAfeServer(param);
     }
+
 
     private int frameSize = 4224;
     private void putPcmData(File pcmFile) {

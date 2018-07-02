@@ -48,6 +48,7 @@ public class PhoneTestActivity extends Activity {
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+
         @Override
         public void onIntermediateSlice(String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
@@ -103,6 +104,7 @@ public class PhoneTestActivity extends Activity {
 
         }
 
+
         @Override
         public void onPcmServerPrepared() throws RemoteException {
 
@@ -138,11 +140,14 @@ public class PhoneTestActivity extends Activity {
         // 初始化算法处理中心
 
         mRokidAFEProxy = new RokidAFEProxy(this);
+        ServerConfig serverConfig = null;
         if(status == 0) {
-            mRokidAFEProxy.addResultListener(new ServerConfig("workdir_asr_cn","phonetest", false), mAudioAiListener);
+            serverConfig = new ServerConfig("workdir_asr_cn","phonetest", false);
         } else if(status == 1) {
-            mRokidAFEProxy.addResultListener(new ServerConfig("workdir_asr_cn","phonetest2", false), mAudioAiListener);
+            serverConfig = new ServerConfig("workdir_asr_cn","phonetest2", false);
         }
+        mRokidAFEProxy.setCurrentConfig(serverConfig);
+        mRokidAFEProxy.addResultListener(mAudioAiListener);
 
         String strTemp = UUID.randomUUID().toString().replace("-", "");
         AfeParam param = new AfeParam();

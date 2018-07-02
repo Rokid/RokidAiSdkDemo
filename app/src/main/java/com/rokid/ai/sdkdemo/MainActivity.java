@@ -25,6 +25,7 @@ import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
+import com.rokid.ai.sdkdemo.service.TipsService;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
@@ -84,12 +85,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestPermission();
 
         mServiceIntent = AudioAiConfig.getIndependentIntent(this);
-        bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
+
+        startTapsService();
 
         mPcmClientManager = new PcmClientManager();
 
         mAsrControlPresenter = new AsrControlPresenterImpl(this, mAsrUiView);
 
+        bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
+    }
+
+    public void startTapsService(){
+        Intent tipsIntent = new Intent(this, TipsService.class);
+        tipsIntent.putExtra(AudioAiConfig.PARAM_SERVICE_START_CONFIG, getServiceConfig());
+        startService(tipsIntent);
     }
 
     public void initView() {
@@ -113,10 +122,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ServiceConnection mAiServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Logger.d(TAG, "MainAct(): onServiceConnected ");
             if (service != null) {
                 mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
+                Logger.d(TAG, "MainAct(): onServiceConnected 1111");
                 try {
-                    mAudioAiService.srartAudioAiServer(getServiceConfig(), mAudioAiListener);
+                    mAudioAiService.registAudioAiListener(mAudioAiListener);
+                    Logger.d(TAG, "MainAct(): onServiceConnected 2222");
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
