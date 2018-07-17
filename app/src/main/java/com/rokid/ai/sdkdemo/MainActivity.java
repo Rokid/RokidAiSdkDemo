@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // "workdir_asr_cn": 算法配置文件在assets目录中的位置
         // "ttc": 算法库配置文件名 eg: device.ttc.cfg -> "ttc"
         // useOtherAudio: 是否使用用户自己的audio数据模块
-        ServerConfig config = new ServerConfig("workdir_asr_cn", "ttc", false);
+        ServerConfig config = new ServerConfig("workdir_asr_cn", "kenobi", false);
         // 设置日志配置
         config.setLogConfig(Logger.LEVEL_D, true, true);
         // key: Rokid开放平台注册时生成的Key
