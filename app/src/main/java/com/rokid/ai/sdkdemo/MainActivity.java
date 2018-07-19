@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPcmServerPrepared() throws RemoteException {
             if (mPcmClientManager != null) {
-                mPcmClientManager.startSocket(null, mPcmReceiver);
+//                mPcmClientManager.startSocket(null, mPcmReceiver);
             }
         }
     };
