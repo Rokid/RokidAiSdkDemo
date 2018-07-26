@@ -16,6 +16,7 @@ import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 
 /**
@@ -67,8 +68,8 @@ public class TipsService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return super.onStartCommand(intent, flags, startId);
+        super.onStartCommand(intent, flags, startId);
+        return Service.START_REDELIVER_INTENT;
     }
 
     public boolean startAiServer(ServerConfig config) {
@@ -91,6 +92,7 @@ public class TipsService extends Service {
             if (service != null) {
                 mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
                 try {
+                    service.linkToDeath(mDeathRecipient, 0);
                     mAudioAiService.registAudioAiListener(mAudioAiListener);
                     Logger.d(TAG, "mAiServiceConnection(): registListener ");
                 } catch (RemoteException e) {
@@ -105,17 +107,34 @@ public class TipsService extends Service {
         }
     };
 
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            try {
+                Logger.d(TAG, "DeathRecipient(): binderDied start");
+                startService(mServiceIntent);
+                mServerRunning = true;
+                registListener();
+                Logger.d(TAG, "DeathRecipient(): binderDied end");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
+
         @Override
-        public void onIntermediateSlice(String asr) {
-            Logger.d(TAG, "onIntermediateSlice(): asr = " + asr);
+        public void onIntermediateSlice(int id, String asr) {
+            Logger.d(TAG, "onIntermediateSlice(): id = " + id + ", asr = " + asr);
 
         }
 
         @Override
-        public void onIntermediateEntire(final String asr) {
-            Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
+        public void onIntermediateEntire(int id, final String asr) {
+            Logger.d(TAG, "onIntermediateEntire(): id = " + id + ", asr = " + asr);
             mToastHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -125,21 +144,21 @@ public class TipsService extends Service {
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) {
-            Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + "\n action = " + action);
+        public void onCompleteNlp(int id, String nlp, String action) {
+            Logger.d(TAG, "onCompleteNlp(): id = " + id + ", nlp = " + nlp + "\n action = " + action);
 
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) {
+        public void onVoiceEvent(int id, int event, float sl, float energy) {
 //            Logger.d(TAG, "onVoiceEvent Thread：" + Thread.currentThread().getName());
-            Logger.d(TAG, "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy);
+            Logger.d(TAG, "onVoiceEvent(): id = " + id + ", event = " + event + ", sl = " + sl + ", energy = " + energy);
 
         }
 
         @Override
-        public void onRecognizeError(int errorCode) {
-            Logger.d(TAG, "onRecognizeError(): errorCode = " + errorCode);
+        public void onRecognizeError(int id, int errorCode) {
+            Logger.d(TAG, "onRecognizeError(): id = " + id + ", errorCode = " + errorCode);
 
         }
 
@@ -151,6 +170,11 @@ public class TipsService extends Service {
         @Override
         public void onPcmServerPrepared() {
 
+        }
+
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
         }
     };
 
@@ -169,6 +193,15 @@ public class TipsService extends Service {
     public void onDestroy() {
         Logger.d(TAG, "onDestroy(): ");
         mServerRunning = false;
+
+        try {
+            if (mAudioAiService != null) {
+                mAudioAiService.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                mAudioAiService = null;
+            }
+        } catch (Throwable e) {
+        }
+
         if (mToastHandler != null) {
             mToastHandler.removeCallbacksAndMessages(null);
             mToastHandler = null;

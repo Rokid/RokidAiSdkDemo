@@ -5,20 +5,25 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rokid.ai.audioai.afe.AfeParam;
+import com.rokid.ai.audioai.afe.FileWriteReadSdcard;
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
+
+import org.w3c.dom.Text;
 
 import java.util.UUID;
 
@@ -48,16 +53,17 @@ public class PhoneTestActivity extends Activity {
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
 
         @Override
-        public void onIntermediateSlice(String asr) throws RemoteException {
+        public void onIntermediateSlice(int id, String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
             Logger.d(TAG, s);
 
         }
 
         @Override
-        public void onIntermediateEntire(String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr) throws RemoteException {
 
             final String mTemp = asr;
             runOnUiThread(new Runnable() {
@@ -71,7 +77,7 @@ public class PhoneTestActivity extends Activity {
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
 
             String s = "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r";
             Logger.d(TAG, s);
@@ -79,7 +85,7 @@ public class PhoneTestActivity extends Activity {
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -92,7 +98,7 @@ public class PhoneTestActivity extends Activity {
         }
 
         @Override
-        public void onRecognizeError(int errorCode) throws RemoteException {
+        public void onRecognizeError(int id, int errorCode) throws RemoteException {
 
             String s = "onRecognizeError(): errorCode = " + errorCode + "\n\r";
             Logger.d(TAG, s);
@@ -108,6 +114,11 @@ public class PhoneTestActivity extends Activity {
         @Override
         public void onPcmServerPrepared() throws RemoteException {
 
+        }
+
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
         }
 
     };

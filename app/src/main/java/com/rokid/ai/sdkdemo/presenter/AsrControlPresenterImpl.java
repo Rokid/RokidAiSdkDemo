@@ -1,6 +1,9 @@
 package com.rokid.ai.sdkdemo.presenter;
 
 import android.content.Context;
+
+import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.sdkdemo.PhoneAudioNewSDKActivity;
 import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
 import com.rokid.ai.sdkdemo.util.LimitQueue;
@@ -16,16 +19,26 @@ import java.util.Date;
  */
 public class AsrControlPresenterImpl implements AsrControlPresenter {
 
+    private static final int EXCEPTION_SERVICE_INTERNAL = 6;
+    private static final int EXCEPTION_ASR_TIMEOUT = 7;
+    private static final int EXCEPTION_SERVICE_UNAVAILABLE = 101;
+    private static final int EXCEPTION_REQUEST_TIMEOUT = 103;
+
     private IMediaPlayManager mPlayManager;
     private IAsrUiView mAsrUiView;
     private LimitQueue<String> mEventQueue;
     private LimitQueue<String> mResultQueue;
     private SimpleDateFormat mDateFormatter;
     private SimpleDateFormat mTimeFormatter;
+    private boolean useToast;
 
     public AsrControlPresenterImpl(Context context, IAsrUiView uiView) {
         this.mAsrUiView = uiView;
         this.mPlayManager = new MediaPlayManagerImpl(context);
+        if (context instanceof PhoneAudioNewSDKActivity) {
+            useToast = true;
+        }
+
         mEventQueue = new LimitQueue<>(5);
         mResultQueue = new LimitQueue<>(5);
         mDateFormatter = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss SSS");
@@ -54,32 +67,39 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     }
 
     @Override
-    public void showAsrResultText(String str, boolean isFinish) {
+    public void showAsrResultText(int id, String str, boolean isFinish) {
 
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("时间: ");
-        builder.append(mTimeFormatter.format(new Date()) + "    ");
-        if (isFinish) {
-            builder.append("最终结果: ");
-        } else {
-            builder.append("中间结果: ");
-        }
-        builder.append(str + "    ");
-
-        mResultQueue.offer(builder.toString());
-        if (mAsrUiView != null) {
-            StringBuilder out = new StringBuilder();
-            int len = mResultQueue.size();
-            for (int i = 0; i < len; i++) {
-                out.append(mResultQueue.get(i) + "\n");
+        if (useToast) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("时间: ");
+            builder.append(mTimeFormatter.format(new Date()) + "    ");
+            builder.append("会话ID: ");
+            builder.append(id + "    ");
+            if (isFinish) {
+                builder.append("最终结果: ");
+            } else {
+                builder.append("中间结果: ");
             }
-            mAsrUiView.showAsrResultText(out.toString());
+            builder.append(str + "    ");
+
+            mResultQueue.offer(builder.toString());
+            if (mAsrUiView != null) {
+                StringBuilder out = new StringBuilder();
+                int len = mResultQueue.size();
+                for (int i = 0; i < len; i++) {
+                    out.append(mResultQueue.get(i) + "\n");
+                }
+                mAsrUiView.showAsrResultText(out.toString(), isFinish);
+            }
+        } else {
+            if (mAsrUiView != null) {
+                mAsrUiView.showAsrResultText(str, isFinish);
+            }
         }
     }
 
     @Override
-    public void showAsrEvent(int event, float sl, float energy) {
+    public void showAsrEvent(int id, int event, float sl, float energy) {
         try {
             VoiceRecognize.Event eventEnum = VoiceRecognize.Event.values()[event];
 
@@ -87,6 +107,8 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
             StringBuilder builder = new StringBuilder();
             builder.append("时间: ");
             builder.append(mDateFormatter.format(new Date()) + "    ");
+            builder.append("会话ID: ");
+            builder.append(id + "    ");
             builder.append("事件类型: ");
             builder.append(eventType + "    ");
             builder.append("唤醒角度: ");
@@ -108,6 +130,7 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
             switch (eventEnum) {
                 case EVENT_VOICE_ACCEPT:
                     showAsrActivation(true);
+                    Logger.d("AsrControlPresenterImpl", "MAIN_ACCEPT SessionID = " + id + ", eventID = " + event);
                     break;
                 case EVENT_VOICE_REJECT:
                     showAsrActivation(false);
@@ -124,7 +147,24 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     @Override
     public void showRecognizeError(int errorCode) {
         try {
-            String errorType = VoiceRecognize.ExceptionCode.values()[errorCode].name();
+            String errorType;
+            switch (errorCode) {
+                case EXCEPTION_SERVICE_INTERNAL:
+                    errorType = "语音服务内部错误";
+                    break;
+                case EXCEPTION_ASR_TIMEOUT:
+                    errorType = "语音识别超时";
+                    break;
+                case EXCEPTION_SERVICE_UNAVAILABLE:
+                    errorType = "服务不可用";
+                    break;
+                case EXCEPTION_REQUEST_TIMEOUT:
+                    errorType = "请求超时无响应";
+                    break;
+                default:
+                    errorType = "未知错误 " + errorCode;
+            }
+
             if (mAsrUiView != null) {
                 mAsrUiView.showRecognizeError(errorType);
                 mAsrUiView.showAsrNlpText("", "");
@@ -141,9 +181,11 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     }
 
     @Override
-    public void showAsrNlpText(String nlp, String action) {
+    public void showAsrNlpText(int id, String nlp, String action) {
         if (mAsrUiView != null) {
-            mAsrUiView.showAsrNlpText(nlp, action);
+            String sNlp = "NLP_" + id + ": " + nlp;
+            String sAction = "ACTION_" + id + ": " + action;
+            mAsrUiView.showAsrNlpText(sNlp, sAction);
         }
     }
 }

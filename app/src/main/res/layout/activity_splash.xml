@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.sdkdemo.SplashActivity">
+    tools:context="com.rokid.ai.audiodemo.SplashActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -92,6 +92,16 @@
             android:padding="10dp"
             android:background="@drawable/btn_bg"
             android:text="语音开发版测试" />
+
+        <Button
+            android:id="@+id/btn_bsp_stop_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:onClick="onClick"
+            android:padding="10dp"
+            android:background="@drawable/btn_bg"
+            android:text="结束服务进程" />
     </LinearLayout>
 
 

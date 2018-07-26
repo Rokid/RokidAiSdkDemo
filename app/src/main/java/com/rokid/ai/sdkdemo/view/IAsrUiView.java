@@ -9,7 +9,7 @@ public interface IAsrUiView {
      *
      * @param str 数据信息
      */
-    void showAsrResultText(String str);
+    void showAsrResultText(String str, boolean isFinish);
 
     /**
      * 设置ASR状态信息的展示

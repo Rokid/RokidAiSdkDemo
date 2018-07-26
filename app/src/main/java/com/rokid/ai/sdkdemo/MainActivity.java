@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -22,11 +22,13 @@ import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
 import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
-import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
-import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.service.TipsService;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
+
+import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
+import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
 import java.io.BufferedReader;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mIgnoreSuppressAudioVolume = false;
 
     private Intent mServiceIntent;
+
 
     private PcmClientManager mPcmClientManager;
 
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.start_play_tts_btn).setOnClickListener(this);
         findViewById(R.id.start_play_media_btn).setOnClickListener(this);
         findViewById(R.id.stop_play_media_btn).setOnClickListener(this);
+        findViewById(R.id.text_process_error_btn).setOnClickListener(this);
 
         ((TextView) findViewById(R.id.main_test_tv)).setText("ACT : " + mTestCode);
     }
@@ -127,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
                 Logger.d(TAG, "MainAct(): onServiceConnected 1111");
                 try {
+                    service.linkToDeath(mDeathRecipient, 0);
                     mAudioAiService.registAudioAiListener(mAudioAiListener);
                     Logger.d(TAG, "MainAct(): onServiceConnected 2222");
                 } catch (RemoteException e) {
@@ -138,6 +143,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mAudioAiService = null;
+        }
+    };
+
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            try {
+                Logger.d(TAG, "DeathRecipient(): binderDied start");
+                bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
+                Logger.d(TAG, "DeathRecipient(): binderDied end");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -160,41 +178,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
+
         @Override
-        public void onIntermediateSlice(String asr) throws RemoteException {
+        public void onIntermediateSlice(int id, String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateSlice(): asr = " + asr);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, false);
+                mAsrControlPresenter.showAsrResultText(id, asr, false);
             }
         }
 
         @Override
-        public void onIntermediateEntire(String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, true);
+                mAsrControlPresenter.showAsrResultText(id, asr, true);
             }
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
             Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + " action = " + action);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrNlpText(nlp, action);
+                mAsrControlPresenter.showAsrNlpText(id, nlp, action);
             }
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
 //            Logger.d(TAG, "onVoiceEvent Thread：" + Thread.currentThread().getName());
             Logger.d(TAG, "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrEvent(event, sl, energy);
+                mAsrControlPresenter.showAsrEvent(id, event, sl, energy);
             }
         }
 
         @Override
-        public void onRecognizeError(int errorCode) throws RemoteException {
+        public void onRecognizeError(int id, int errorCode) throws RemoteException {
             Logger.d(TAG, "onRecognizeError(): errorCode = " + errorCode);
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showRecognizeError(errorCode);
@@ -212,6 +232,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                mPcmClientManager.startSocket(null, mPcmReceiver);
             }
         }
+
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
+        }
     };
 
     private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {
@@ -224,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private IAsrUiView mAsrUiView = new IAsrUiView() {
 
         @Override
-        public void showAsrResultText(final String str) {
+        public void showAsrResultText(final String str, final boolean isFinish) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -252,11 +277,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mActivationCount = mActivationCount + 1;
-                    if (mActivationTv != null) {
-                        mActivationTv.setText("激活访问次数：" + mActivationCount);
-                    }
                     if (isActivation) {
+                        mActivationCount = mActivationCount + 1;
+                        if (mActivationTv != null) {
+                            mActivationTv.setText("激活访问次数：" + mActivationCount);
+                        }
                         Toast.makeText(mContext, "激活了", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(mContext, "拒绝了", Toast.LENGTH_SHORT).show();
@@ -271,10 +296,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void run() {
                     if (mNLPTv != null) {
-                        mNLPTv.setText("NLP：" + nlp);
+                        mNLPTv.setText(nlp);
                     }
                     if (mActionTv != null) {
-                        mActionTv.setText("Action：" + action);
+                        mActionTv.setText(action);
                     }
                 }
             });
@@ -287,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void run() {
                     if (mErrorTv != null) {
                         mErrorTv.setBackgroundColor(getResources().getColor(R.color.colorRed));
-                        mErrorTv.setText("errorType：" + errorType);
+                        mErrorTv.setText(errorType);
 
                         mErrorTv.postDelayed(new Runnable() {
                             @Override
@@ -351,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return config;
     }
 
+
     /**
      * 获取配置文件信息
      *
@@ -361,6 +387,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (TextUtils.isEmpty(path)) {
             return null;
         }
+
+
         HashMap<String, String> paramMap = new HashMap<>();
         File file = new File(path);
         if (file.exists() && file.isFile()) {
@@ -431,6 +459,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
                 break;
+            case R.id.text_process_error_btn:
+                Logger.d(TAG, "onClick(): text_process_error_btn");
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setAngle(22222);
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
             default:
                 break;
         }
@@ -459,6 +497,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         mContext = null;
+        try {
+            if (mAudioAiService != null) {
+                mAudioAiService.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                mAudioAiService = null;
+            }
+        } catch (Throwable e) {
+        }
+
         if (mPcmClientManager != null) {
             mPcmClientManager.onDestroy();
             mPcmClientManager = null;

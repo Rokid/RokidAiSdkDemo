@@ -7,20 +7,17 @@ import android.media.MediaPlayer;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * model接口 -> 媒体播放控制实现类
  */
 public class MediaPlayManagerImpl implements IMediaPlayManager {
 
-
-    private static final String TAG = "MediaPlayManagerImpl";
 
     private MediaPlayer mMediaPlayer;
     private Context mContext;
@@ -65,7 +62,7 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
         if (!TextUtils.isEmpty(name)) {
             String newPath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + File.separator + name;
-            copyFileFromAssets(mContext, name, newPath);
+            FileUtil.copyFileFromAssets(mContext, name, newPath);
         }
     }
 
@@ -101,48 +98,6 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
                 mMediaPlayer.start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * 从assets目录中复制文件
-     *
-     * @param context Context 使用CopyFiles类的Activity
-     * @param oldPath String  原文件路径
-     * @param newPath String  复制后路径
-     */
-    public void copyFileFromAssets(Context context, String oldPath, String newPath) {
-
-        try {
-            //如果是文件
-            File newFile = new File(newPath);
-            if (newFile.exists() && newFile.isFile()) {
-                // 文件存在，不进行拷贝
-                Logger.d(TAG, "copyFileFromAssets 文件存在： path = " + newPath);
-            } else {
-                // 文件不存在，进行拷贝
-                InputStream is = context.getAssets().open(oldPath);
-                FileOutputStream fos = new FileOutputStream(newFile);
-
-                byte[] buffer = new byte[1024];
-                int byteCount = 0;
-
-                //循环从输入流读取 buffer字节
-                while((byteCount = is.read(buffer)) != -1) {
-                    //将读取的输入流写入到输出流
-                    fos.write(buffer, 0, byteCount);
-                }
-
-                //刷新缓冲区
-                fos.flush();
-                is.close();
-                fos.close();
-
-                Logger.d(TAG, "copyFileFromAssets oldPath = " + oldPath + ", newPath = " + newPath);
-            }
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }

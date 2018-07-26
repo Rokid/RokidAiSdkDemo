@@ -22,6 +22,7 @@ import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
 import com.rokid.ai.audioai.socket.base.ClientSocketManager;
 import com.rokid.ai.audioai.socket.business.record.RecordClientManager;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
@@ -162,41 +163,43 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
+
         @Override
-        public void onIntermediateSlice(String asr) throws RemoteException {
+        public void onIntermediateSlice(int id, String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateSlice(): asr = " + asr);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, false);
+                mAsrControlPresenter.showAsrResultText(id, asr, false);
             }
         }
 
         @Override
-        public void onIntermediateEntire(String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, true);
+                mAsrControlPresenter.showAsrResultText(id, asr, true);
             }
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
             Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + " action = " + action);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrNlpText(nlp, action);
+                mAsrControlPresenter.showAsrNlpText(id, nlp, action);
             }
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
 //            Logger.d(TAG, "onVoiceEvent Thread：" + Thread.currentThread().getName());
             Logger.d(TAG, "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrEvent(event, sl, energy);
+                mAsrControlPresenter.showAsrEvent(id, event, sl, energy);
             }
         }
 
         @Override
-        public void onRecognizeError(int errorCode) throws RemoteException {
+        public void onRecognizeError(int id, int errorCode) throws RemoteException {
             Logger.d(TAG, "onRecognizeError(): errorCode = " + errorCode);
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showRecognizeError(errorCode);
@@ -220,6 +223,11 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void onPcmServerPrepared() throws RemoteException {
 
+        }
+
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
         }
     };
 
@@ -308,7 +316,7 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
     private IAsrUiView mAsrUiView = new IAsrUiView() {
 
         @Override
-        public void showAsrResultText(final String str) {
+        public void showAsrResultText(final String str, final boolean isFinish) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -336,11 +344,11 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mActivationCount = mActivationCount + 1;
-                    if (mActivationTv != null) {
-                        mActivationTv.setText("激活访问次数：" + mActivationCount);
-                    }
                     if (isActivation) {
+                        mActivationCount = mActivationCount + 1;
+                        if (mActivationTv != null) {
+                            mActivationTv.setText("激活访问次数：" + mActivationCount);
+                        }
                         Toast.makeText(mContext, "激活了", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(mContext, "拒绝了", Toast.LENGTH_SHORT).show();
@@ -355,10 +363,10 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
                 @Override
                 public void run() {
                     if (mNLPTv != null) {
-                        mNLPTv.setText("NLP：" + nlp);
+                        mNLPTv.setText(nlp);
                     }
                     if (mActionTv != null) {
-                        mActionTv.setText("Action：" + action);
+                        mActionTv.setText(action);
                     }
                 }
             });

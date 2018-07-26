@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.sdkdemo.PhoneAudioNewSDKActivity">
+    tools:context="com.rokid.ai.audiodemo.PhoneAudioNewSDKActivity">
 
 
     <LinearLayout
@@ -46,6 +46,19 @@
             android:layout_marginRight="20px"
             android:layout_marginLeft="20px"
             android:text="设置寻向角度"
+            android:onClick="onClick"
+            />
+
+
+        <Button
+            android:id="@+id/btn_other_restart_test"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="重启测试"
             android:onClick="onClick"
             />
 

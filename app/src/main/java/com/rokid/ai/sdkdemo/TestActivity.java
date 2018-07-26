@@ -1,12 +1,12 @@
 package com.rokid.ai.sdkdemo;
 
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +17,7 @@ import com.rokid.ai.audioai.afe.AfeParam;
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 
@@ -56,20 +57,22 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
+
         @Override
-        public void onIntermediateSlice(String asr) throws RemoteException {
+        public void onIntermediateSlice(int id, String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
             Logger.d(TAG, s);
 
         }
 
         @Override
-        public void onIntermediateEntire(String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr) throws RemoteException {
             Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
             successNum++;
             String s = "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r";
             Logger.d(TAG, s);
@@ -80,14 +83,14 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
             String s = "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + "\n\r";
             Logger.d(TAG, s);
             appendStringToFile(s, TEST_FOLDER, "testLog.txt");
         }
 
         @Override
-        public void onRecognizeError(int errorCode) throws RemoteException {
+        public void onRecognizeError(int id, int errorCode) throws RemoteException {
             String s = "onRecognizeError(): errorCode = " + errorCode + "\n\r";
             Logger.d(TAG, s);
             appendStringToFile(s, TEST_FOLDER, "testLog.txt");
@@ -103,6 +106,11 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPcmServerPrepared() throws RemoteException {
 
+        }
+
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
         }
 
     };
@@ -149,7 +157,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void testPrepare() {
         // 初始化算法处理中心
         mRokidAFEProxy = new RokidAFEProxy(this);
-        mRokidAFEProxy.setCurrentConfig(new ServerConfig("workdir_asr_cn","ttc", false));
+        mRokidAFEProxy.setCurrentConfig(new ServerConfig("workdir_asr_cn","kenobi", false));
         mRokidAFEProxy.addResultListener(mAudioAiListener);
 
         AfeParam param = new AfeParam();
@@ -162,7 +170,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private int frameSize = 4224;
+    private int frameSize = 11520;
     private void putPcmData(File pcmFile) {
         FileInputStream mFIleInput = null;
         try {
@@ -178,7 +186,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 if (count == frameSize) {
                     Log.d(TAG, "the frameSzie is " + frameSize);
                     mRokidAFEProxy.addPcmData(count, myte);
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 }
             }
 

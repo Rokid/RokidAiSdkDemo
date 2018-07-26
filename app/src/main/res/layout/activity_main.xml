@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.sdkdemo.MainActivity">
+    tools:context="com.rokid.ai.audiodemo.MainActivity">
 
 
     <LinearLayout
@@ -56,6 +56,18 @@
             android:layout_marginRight="40dp"
             android:background="@drawable/btn_bg"
             android:text="暂停"
+            android:textColor="#3700b3" />
+
+        <Button
+            android:id="@+id/text_process_error_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:background="@drawable/btn_bg"
+            android:text="Crash"
             android:textColor="#3700b3" />
 
     </LinearLayout>

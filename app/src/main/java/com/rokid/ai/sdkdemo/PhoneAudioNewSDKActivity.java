@@ -7,11 +7,11 @@ import android.content.ServiceConnection;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +24,7 @@ import com.rokid.ai.audioai.socket.base.ClientSocketManager;
 import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
 import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
 import com.rokid.ai.audioai.socket.business.record.RecordClientManager;
+import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
@@ -171,6 +172,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                     Logger.d(TAG, "the onServiceConenct is called111");
                     mAudioAiService = IRokidAudioAiService.Stub.asInterface(service);
                     try {
+                        service.linkToDeath(mDeathRecipient, 0);
                         Logger.d(TAG, "the onServiceConenct is called222" + mSingleDoubleStatus);
                         mAudioAiService.registAudioAiListener(mAudioAiListener);
                     } catch (RemoteException e) {
@@ -186,55 +188,70 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         };
     }
 
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            try {
+                Logger.d(TAG, "DeathRecipient(): binderDied start");
+                startService(mServiceIntent);
+                bindService(mServiceIntent, mAiServiceConnection, BIND_AUTO_CREATE);
+                Logger.d(TAG, "DeathRecipient(): binderDied end");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     private IRokidAudioAiListener mAudioAiListener = new IRokidAudioAiListener.Stub() {
 
+        private String mListenerKey = FileUtil.getStringID();
 
         @Override
-        public void onIntermediateSlice(String asr) throws RemoteException {
+        public void onIntermediateSlice(int id, String asr) throws RemoteException {
             String s = "onIntermediateSlice(): asr = " + asr;
             Logger.d(TAG, s);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, false);
+                mAsrControlPresenter.showAsrResultText(id, asr, false);
             }
 
         }
 
         @Override
-        public void onIntermediateEntire(String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr) throws RemoteException {
 
             final String mTemp = asr;
 
             Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
 
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(asr, true);
+                mAsrControlPresenter.showAsrResultText(id, asr, true);
             }
         }
 
         @Override
-        public void onCompleteNlp(String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
 
             Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r");
 
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrNlpText(nlp, action);
+                mAsrControlPresenter.showAsrNlpText(id, nlp, action);
             }
 
         }
 
         @Override
-        public void onVoiceEvent(int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
 
 
             String s = "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + "\n\r";
             Logger.d(TAG, s);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrEvent(event, sl, energy);
+                mAsrControlPresenter.showAsrEvent(id, event, sl, energy);
             }
         }
 
         @Override
-        public void onRecognizeError(int errorCode) throws RemoteException {
+        public void onRecognizeError(int id, int errorCode) throws RemoteException {
 
             String s = "onRecognizeError(): errorCode = " + errorCode + "\n\r";
             Logger.d(TAG, s);
@@ -262,10 +279,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                         bufferSize = bufferSize * 3;
                     } else if(mSingleDoubleStatus == 1) {
                         bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNELDOUBLE, AudioFormat.ENCODING_PCM_16BIT);
-                        bufferSize = bufferSize * 6;
+                        bufferSize = bufferSize * 5;
                     }
-
-
 
                     if(mAudioRecord == null) {
 
@@ -313,8 +328,10 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
             }
         }
 
-
-
+        @Override
+        public String getKey() throws RemoteException {
+            return mListenerKey;
+        }
     };
 
     private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {
@@ -360,7 +377,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
     private IAsrUiView mAsrUiView = new IAsrUiView() {
 
         @Override
-        public void showAsrResultText(final String str) {
+        public void showAsrResultText(final String str, boolean isFinish) {
             Logger.d(TAG, "onVoiceEvent(): showAsrResultText = " + str);
             runOnUiThread(new Runnable() {
                 @Override
@@ -374,7 +391,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
 
         @Override
         public void showAsrStateText(final String str) {
-            Logger.d(TAG, "onVoiceEvent(): event = " + str);
+//            Logger.d(TAG, "onVoiceEvent(): event = " + str);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -391,11 +408,11 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mActivationCount = mActivationCount + 1;
-                    if (mActivationTv != null) {
-                        mActivationTv.setText("激活访问次数：" + mActivationCount);
-                    }
                     if (isActivation) {
+                        mActivationCount = mActivationCount + 1;
+                        if (mActivationTv != null) {
+                            mActivationTv.setText("激活访问次数：" + mActivationCount);
+                        }
                         Toast.makeText(mContext, "激活了", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(mContext, "拒绝了", Toast.LENGTH_SHORT).show();
@@ -411,10 +428,10 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (mNLPTv != null) {
-                        mNLPTv.setText("NLP：" + nlp);
+                        mNLPTv.setText(nlp);
                     }
                     if (mActionTv != null) {
-                        mActionTv.setText("Action：" + action);
+                        mActionTv.setText(action);
                     }
                 }
             });
@@ -482,6 +499,14 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         Logger.d(TAG, "onDestroy(): is called");
         if (mAudioRecord != null) {
             mAudioRecord.stop();
+        }
+
+        try {
+            if (mAudioAiService != null) {
+                mAudioAiService.asBinder().unlinkToDeath(mDeathRecipient, 0);
+                mAudioAiService = null;
+            }
+        } catch (Throwable e) {
         }
 
         try {
@@ -554,6 +579,15 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
                         mAudioAiService.setAngle(100);
                     }
                 } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.btn_other_restart_test:
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setAngle(11111);
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
