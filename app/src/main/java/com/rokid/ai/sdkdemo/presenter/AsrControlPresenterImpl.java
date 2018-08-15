@@ -2,7 +2,6 @@ package com.rokid.ai.sdkdemo.presenter;
 
 import android.content.Context;
 
-import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.PhoneAudioNewSDKActivity;
 import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
@@ -128,12 +127,15 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
             }
 
             switch (eventEnum) {
-                case EVENT_VOICE_ACCEPT:
+//                case EVENT_VOICE_ACCEPT:
+//                    showAsrActivation(true);
+//                    Logger.d("AsrControlPresenterImpl", "MAIN_ACCEPT SessionID = " + id + ", eventID = " + event);
+//                    break;
+//                case EVENT_VOICE_REJECT:
+//                    showAsrActivation(false);
+//                    break;
+                case EVENT_VOICE_LOCAL_WAKE:
                     showAsrActivation(true);
-                    Logger.d("AsrControlPresenterImpl", "MAIN_ACCEPT SessionID = " + id + ", eventID = " + event);
-                    break;
-                case EVENT_VOICE_REJECT:
-                    showAsrActivation(false);
                     break;
                     default:
                         break;

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.rokid.ai.audiodemo.BspAudioActivity">
+    tools:context="com.rokid.ai.sdkdemo.BspAudioActivity">
 
 
     <LinearLayout

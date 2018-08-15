@@ -5,6 +5,9 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 
 import com.rokid.ai.audioai.util.FileUtil;
@@ -19,16 +22,28 @@ import java.io.IOException;
 public class MediaPlayManagerImpl implements IMediaPlayManager {
 
 
+    private static final int REPLAY_MUSIC = 111;
+
     private MediaPlayer mMediaPlayer;
     private Context mContext;
-
-
+    private boolean mAudioPalying;
 
     public MediaPlayManagerImpl(Context context) {
 
         mMediaPlayer = new MediaPlayer();
         this.mContext = context;
     }
+
+    private Handler mPlayHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg != null && msg.what == REPLAY_MUSIC) {
+                String fileName = (String) msg.obj;
+                boolean sd = msg.arg1 == 1;
+                playSdCardSource(fileName, sd);
+            }
+        }
+    };
 
     @Override
     public void startPlayMedia() {
@@ -40,6 +55,7 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
             if (file.exists() && file.isFile()) {
                 useSdCard = true;
             }
+            mAudioPalying = true;
             playSdCardSource(name, useSdCard);
         }
     }
@@ -48,6 +64,10 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
     public void stopPlayMedia() {
         if(mMediaPlayer != null && mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
+            mAudioPalying = false;
+        }
+        if (mPlayHandler != null) {
+            mPlayHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -55,6 +75,9 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
     public void releaseMedia() {
         if(mMediaPlayer != null) {
             mMediaPlayer.release();
+        }
+        if (mPlayHandler != null) {
+            mPlayHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -72,7 +95,7 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
      *
      * @param fileName 文件名
      */
-    private void playSdCardSource(String fileName, boolean isSdCard) {
+    private void playSdCardSource(final String fileName, final boolean isSdCard) {
         if (TextUtils.isEmpty(fileName)) {
             return;
         }
@@ -93,10 +116,25 @@ public class MediaPlayManagerImpl implements IMediaPlayManager {
                 Logger.d("MediaPlayManagerImpl", "playSdCardSource() Assets soure = " + fileName );
             }
             mMediaPlayer.prepare();
-            mMediaPlayer.setLooping(true);
+            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    Message msg = new Message();
+                    msg.obj = fileName;
+                    msg.what = REPLAY_MUSIC;
+                    msg.arg1 = isSdCard ? 1:0;
+
+                    if (mPlayHandler != null) {
+                        mPlayHandler.removeMessages(REPLAY_MUSIC);
+                        mPlayHandler.sendMessageDelayed(msg, 2000);
+                    }
+                }
+            });
+
             if (!mMediaPlayer.isPlaying()) {
                 mMediaPlayer.start();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
