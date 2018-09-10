@@ -20,14 +20,14 @@ import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.socket.base.ClientSocketManager;
-import com.rokid.ai.audioai.socket.business.record.RecordClientManager;
 import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
+import com.rokid.aisdk.socket.base.ClientSocketManager;
+import com.rokid.aisdk.socket.business.record.RecordClientManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -228,6 +228,18 @@ public class OtherAudioActivity extends AppCompatActivity implements View.OnClic
         @Override
         public String getKey() throws RemoteException {
             return mListenerKey;
+        }
+
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
         }
     };
 

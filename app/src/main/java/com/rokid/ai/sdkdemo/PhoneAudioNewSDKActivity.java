@@ -7,11 +7,11 @@ import android.content.ServiceConnection;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,16 +20,16 @@ import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.socket.base.ClientSocketManager;
-import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
-import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
-import com.rokid.ai.audioai.socket.business.record.RecordClientManager;
 import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
+import com.rokid.aisdk.socket.base.ClientSocketManager;
+import com.rokid.aisdk.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.aisdk.socket.business.preprocess.PcmClientManager;
+import com.rokid.aisdk.socket.business.record.RecordClientManager;
 
 import java.io.File;
 
@@ -76,7 +76,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
 
     private RecordClientManager mRecordClientManager;
 
-    private PcmClientManager mPcmSocketManager;
+    private PcmClientManager mPickPcmSocketManager;
 
     private Intent mServiceIntent;
     private ServerConfig mServerConfig;
@@ -95,7 +95,7 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
 
         mServiceIntent = AudioAiConfig.getIndependentIntent(this);
         mRecordClientManager = new RecordClientManager();
-        mPcmSocketManager = new PcmClientManager();
+        mPickPcmSocketManager = new PcmClientManager();
     }
 
 
@@ -323,8 +323,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         @Override
         public void onPcmServerPrepared() throws RemoteException {
             Logger.d(TAG,"onPcmServerPrepared(): called");
-            if (mPcmSocketManager != null) {
-                mPcmSocketManager.startSocket(null, mPcmReceiver);
+            if (mPickPcmSocketManager != null) {
+                mPickPcmSocketManager.startSocket(null, mPcmReceiver, 30017);
             }
         }
 
@@ -332,13 +332,23 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         public String getKey() throws RemoteException {
             return mListenerKey;
         }
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
+        }
     };
 
     private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {
         @Override
         public void onPcmReceive(int length, byte[] data) {
-            String s = "onPcmReceive(): len = " + length + "\n\r";
-//            Logger.d(TAG, s);
+            Logger.d(TAG, "onPcmReceive(): onPcmReceive len = " + length + "\n\r");
             showPcmData(length, data);
         }
     };
@@ -370,6 +380,9 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         if (mIgnoreSuppressAudioVolume) {
             config.setIgnoreSuppressAudioVolume(true);
         }
+
+        // 使用语音处理软件处理NLP技能
+        config.setUseNlpConsumer(true);
 
         return config;
     }
@@ -514,8 +527,8 @@ public class PhoneAudioNewSDKActivity extends AppCompatActivity {
         } catch (Throwable e) {
         }
 
-        mPcmSocketManager.onDestroy();
-        mPcmSocketManager = null;
+        mPickPcmSocketManager.onDestroy();
+        mPickPcmSocketManager = null;
 
         mRecordClientManager.onDestroy();
         mRecordClientManager = null;

@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -20,16 +20,15 @@ import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
-import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
 import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
-import com.rokid.ai.sdkdemo.service.TipsService;
-import com.rokid.ai.sdkdemo.util.PerssionManager;
-
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
+import com.rokid.ai.sdkdemo.service.TipsService;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
+import com.rokid.aisdk.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.aisdk.socket.business.preprocess.PcmClientManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -236,6 +235,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public String getKey() throws RemoteException {
             return mListenerKey;
+        }
+
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
         }
     };
 

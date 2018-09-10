@@ -3,8 +3,8 @@ package com.rokid.ai.sdkdemo.presenter;
 import android.content.Context;
 
 import com.rokid.ai.sdkdemo.PhoneAudioNewSDKActivity;
-import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
+import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.util.LimitQueue;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.voicerec.VoiceRecognize;

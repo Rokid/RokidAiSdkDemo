@@ -1,19 +1,18 @@
 package com.rokid.ai.sdkdemo;
 
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.rokid.ai.audioai.afe.AfeParam;
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.ServerConfig;
@@ -113,6 +112,18 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
             return mListenerKey;
         }
 
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
+        }
+
     };
 
     private Handler testHandler = new Handler() {
@@ -157,16 +168,16 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private void testPrepare() {
         // 初始化算法处理中心
         mRokidAFEProxy = new RokidAFEProxy(this);
-        mRokidAFEProxy.setCurrentConfig(new ServerConfig("workdir_asr_cn","kenobi", false));
+        ServerConfig serverConfig = new ServerConfig("workdir_asr_cn","kenobi", false);
+        mRokidAFEProxy.setCurrentConfig(serverConfig);
         mRokidAFEProxy.addResultListener(mAudioAiListener);
 
-        AfeParam param = new AfeParam();
-        param.mustInit = true;
-        param.key = "BBF450D04CC14DBD88E960CF5D4DD697";
-        param.secret = "29F84556B84441FC885300CD6A85CA70";
-        param.deviceTypeId = "3301A6600C6D44ADA27A5E58F5838E02";
-        param.deviceId = "57E741770A1241CP";
-        startAfeServer(param);
+        serverConfig.setMustInit(true);
+        serverConfig.setKey("BBF450D04CC14DBD88E960CF5D4DD697");
+        serverConfig.setSecret("29F84556B84441FC885300CD6A85CA70");
+        serverConfig.setDeviceTypeId("3301A6600C6D44ADA27A5E58F5838E02");
+        serverConfig.setDeviceId("57E741770A1241CP");
+        startAfeServer(serverConfig);
     }
 
 
@@ -217,16 +228,16 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void startAfeServer(AfeParam param) {
+    private void startAfeServer(ServerConfig config) {
         boolean commandInit = false;
-        if (param != null) {
-            commandInit = param.mustInit;
+        if (config != null) {
+            commandInit = config.isMustInit();
         }
         if (mRokidAFEProxy != null) {
             if (mRokidAFEProxy.isServiceRunning() && !commandInit) {
                 return;
             }
-            mRokidAFEProxy.startAfeServer(param);
+            mRokidAFEProxy.startAfeServer(config);
         }
     }
 

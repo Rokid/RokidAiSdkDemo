@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -13,21 +14,15 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.graphics.drawable.Drawable;
-
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rokid.ai.audioai.AudioAiConfig;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
 import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
 import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.socket.base.ClientSocketManager;
-import com.rokid.ai.audioai.socket.business.preprocess.IReceiverPcmListener;
-import com.rokid.ai.audioai.socket.business.preprocess.PcmClientManager;
-import com.rokid.ai.audioai.socket.business.record.RecordClientManager;
 import com.rokid.ai.audioai.util.FileUtil;
 import com.rokid.ai.audioai.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
@@ -35,8 +30,10 @@ import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.ai.sdkdemo.view.RokidToast;
-
-import java.io.File;
+import com.rokid.aisdk.socket.base.ClientSocketManager;
+import com.rokid.aisdk.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.aisdk.socket.business.preprocess.PcmClientManager;
+import com.rokid.aisdk.socket.business.record.RecordClientManager;
 
 public class BspAudioActivity extends AppCompatActivity {
 
@@ -184,13 +181,25 @@ public class BspAudioActivity extends AppCompatActivity {
         public void onPcmServerPrepared() throws RemoteException {
             Logger.d(TAG,"onPcmServerPrepared(): called");
             if (mPcmSocketManager != null) {
-                mPcmSocketManager.startSocket(null, mPcmReceiver);
+                mPcmSocketManager.startSocket(null, mPcmReceiver, 30003);
             }
         }
 
         @Override
         public String getKey() throws RemoteException {
             return mListenerKey;
+        }
+
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
         }
 
     };

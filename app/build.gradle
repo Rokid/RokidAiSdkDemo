@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId 'com.rokid.ai.sdkdemo'
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -37,7 +37,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation (name:'rokid_ai_sdk_release', ext:'aar')
+    implementation (name:'rokid_ai_sdk_release_1.2.7', ext:'aar')
+    implementation (name:'rokid_nlp_consumer_release_1.0', ext:'aar')
     implementation "io.reactivex.rxjava2:rxjava:2.1.12"
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'

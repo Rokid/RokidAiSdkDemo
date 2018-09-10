@@ -176,6 +176,18 @@ public class TipsService extends Service {
         public String getKey() throws RemoteException {
             return mListenerKey;
         }
+
+
+        @Override
+        public void controlNlpAppExit() throws RemoteException {
+            Logger.d(TAG,"controlNlpAppExit(): called");
+        }
+
+        @Override
+        public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
+            Logger.d(TAG,"interceptCloudNlpControl(): called");
+            return false;
+        }
     };
 
     public void registListener() {
