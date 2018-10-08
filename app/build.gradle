@@ -37,7 +37,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation (name:'rokid_ai_sdk_release_1.2.7', ext:'aar')
+    implementation (name:'rokid_ai_sdk_release_1.2.8', ext:'aar')
     implementation (name:'rokid_nlp_consumer_release_1.0', ext:'aar')
     implementation "io.reactivex.rxjava2:rxjava:2.1.12"
     implementation 'com.android.support:appcompat-v7:27.1.1'
