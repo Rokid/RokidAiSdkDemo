@@ -12,12 +12,12 @@ import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.rokid.ai.audioai.AudioAiConfig;
-import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
-import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
-import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.util.FileUtil;
-import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.basic.AudioAiConfig;
+import com.rokid.ai.basic.aidl.IRokidAudioAiListener;
+import com.rokid.ai.basic.aidl.IRokidAudioAiService;
+import com.rokid.ai.basic.aidl.ServerConfig;
+import com.rokid.ai.basic.util.FileUtil;
+import com.rokid.ai.basic.util.Logger;
 
 /**
  * Func: 前台服务

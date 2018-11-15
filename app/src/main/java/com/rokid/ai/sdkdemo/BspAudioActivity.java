@@ -19,21 +19,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.rokid.ai.audioai.AudioAiConfig;
-import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
-import com.rokid.ai.audioai.aidl.IRokidAudioAiService;
-import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.util.FileUtil;
-import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.basic.AudioAiConfig;
+import com.rokid.ai.basic.aidl.IRokidAudioAiListener;
+import com.rokid.ai.basic.aidl.IRokidAudioAiService;
+import com.rokid.ai.basic.aidl.ServerConfig;
+import com.rokid.ai.basic.util.FileUtil;
+import com.rokid.ai.basic.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.ai.sdkdemo.view.RokidToast;
-import com.rokid.aisdk.socket.base.ClientSocketManager;
-import com.rokid.aisdk.socket.business.preprocess.IReceiverPcmListener;
-import com.rokid.aisdk.socket.business.preprocess.PcmClientManager;
-import com.rokid.aisdk.socket.business.record.RecordClientManager;
+import com.rokid.ai.socket.base.ClientSocketManager;
+import com.rokid.ai.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.ai.socket.business.preprocess.PcmClientManager;
+import com.rokid.ai.socket.business.record.RecordClientManager;
 
 public class BspAudioActivity extends AppCompatActivity {
 

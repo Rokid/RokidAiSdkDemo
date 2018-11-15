@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.rokid.ai.audioai.AudioAiConfig;
+import com.rokid.ai.basic.AudioAiConfig;
 import com.rokid.ai.sdkdemo.service.TipsService;
 
 public class SplashActivity extends AppCompatActivity {

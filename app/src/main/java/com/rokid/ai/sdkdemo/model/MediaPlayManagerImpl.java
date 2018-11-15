@@ -10,8 +10,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.rokid.ai.audioai.util.FileUtil;
-import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.basic.util.FileUtil;
+import com.rokid.ai.basic.util.Logger;
 
 import java.io.File;
 import java.io.IOException;

@@ -14,10 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rokid.ai.audioai.afe.RokidAFEProxy;
-import com.rokid.ai.audioai.aidl.IRokidAudioAiListener;
-import com.rokid.ai.audioai.aidl.ServerConfig;
-import com.rokid.ai.audioai.util.FileUtil;
-import com.rokid.ai.audioai.util.Logger;
+import com.rokid.ai.basic.aidl.IRokidAudioAiListener;
+import com.rokid.ai.basic.aidl.ServerConfig;
+import com.rokid.ai.basic.util.FileUtil;
+import com.rokid.ai.basic.util.Logger;
 import com.rokid.ai.sdkdemo.util.PerssionManager;
 
 import java.util.UUID;
