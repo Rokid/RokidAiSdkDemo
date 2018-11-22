@@ -1,8 +1,8 @@
 package com.rokid.ai.sdkdemo;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
@@ -47,14 +47,8 @@ public class SplashActivity extends AppCompatActivity {
             case R.id.btn_main:
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 break;
-            case R.id.btn_test_s:
-                startActivity(new Intent(SplashActivity.this, TestActivity.class));
-                break;
             case R.id.btn_other_audio:
-                startActivity(new Intent(SplashActivity.this, OtherAudioActivity.class));
-                break;
-            case R.id.btn_bsp_audio:
-                startActivity(new Intent(SplashActivity.this, BspAudioActivity.class));
+                startActivity(new Intent(SplashActivity.this, FileAudioActivity.class));
                 break;
             case R.id.btn_main_igore_volume:
                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
@@ -64,11 +58,8 @@ public class SplashActivity extends AppCompatActivity {
             case R.id.btn_repeat:
                 repeatAct();
                 break;
-            case R.id.btn_phone_test_splash_activity:
-                startActivity(new Intent(this, PhoneTestActivity.class));
-                break;
-            case R.id.btn_phone_test_new_sdk_splash_activity:
-                startActivity(new Intent(this, PhoneAudioNewSDKActivity.class));
+            case R.id.btn_phone_audio:
+                startActivity(new Intent(this, PhoneAudioActivity.class));
                 break;
             case R.id.btn_bsp_stop_server:
                 beforeClick();

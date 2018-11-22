@@ -43,35 +43,16 @@
             android:background="@drawable/btn_bg"
             android:text="无Rokid音频模组(文件 channel num: 4/6)" />
 
-        <Button
-            android:id="@+id/btn_phone_test_splash_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:padding="10dp"
-            android:onClick="onClick"
-            android:background="@drawable/btn_bg"
-            android:visibility="gone"
-            android:text="无Rokid音频模组(手机 channel num: 1/2)" />
-        <Button
-            android:id="@+id/btn_phone_test_new_sdk_splash_activity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:padding="10dp"
-            android:onClick="onClick"
-            android:background="@drawable/btn_bg"
-            android:text="无Rokid音频模组(手机 channel num: 1/2 New SDK)" />
 
         <Button
-            android:id="@+id/btn_test_s"
+            android:id="@+id/btn_phone_audio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:onClick="onClick"
             android:padding="10dp"
+            android:onClick="onClick"
             android:background="@drawable/btn_bg"
-            android:text="test" />
+            android:text="无Rokid音频模组(手机 channel: 1/2)" />
 
         <Button
             android:id="@+id/btn_repeat"
@@ -81,17 +62,7 @@
             android:onClick="onClick"
             android:padding="10dp"
             android:background="@drawable/btn_bg"
-            android:text="重复测试" />
-
-        <Button
-            android:id="@+id/btn_bsp_audio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="语音开发版测试" />
+            android:text="Activity 重复测试" />
 
         <Button
             android:id="@+id/btn_bsp_stop_server"

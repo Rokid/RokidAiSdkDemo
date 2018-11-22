@@ -2,9 +2,9 @@ package com.rokid.ai.sdkdemo.presenter;
 
 import android.content.Context;
 
-import com.rokid.ai.sdkdemo.PhoneAudioNewSDKActivity;
-import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
+import com.rokid.ai.sdkdemo.PhoneAudioActivity;
 import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
+import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
 import com.rokid.ai.sdkdemo.util.LimitQueue;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.voicerec.VoiceRecognize;
@@ -34,7 +34,7 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     public AsrControlPresenterImpl(Context context, IAsrUiView uiView) {
         this.mAsrUiView = uiView;
         this.mPlayManager = new MediaPlayManagerImpl(context);
-        if (context instanceof PhoneAudioNewSDKActivity) {
+        if (context instanceof PhoneAudioActivity) {
             useToast = true;
         }
 

@@ -4,13 +4,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -20,15 +20,16 @@ import com.rokid.ai.basic.AudioAiConfig;
 import com.rokid.ai.basic.aidl.IRokidAudioAiListener;
 import com.rokid.ai.basic.aidl.IRokidAudioAiService;
 import com.rokid.ai.basic.aidl.ServerConfig;
-import com.rokid.ai.basic.util.FileUtil;
-import com.rokid.ai.basic.util.Logger;
-import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
-import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
-import com.rokid.ai.sdkdemo.service.TipsService;
-import com.rokid.ai.sdkdemo.util.PerssionManager;
-import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.ai.socket.business.preprocess.IReceiverPcmListener;
 import com.rokid.ai.socket.business.preprocess.PcmClientManager;
+import com.rokid.ai.basic.util.FileUtil;
+import com.rokid.ai.basic.util.Logger;
+import com.rokid.ai.sdkdemo.service.TipsService;
+import com.rokid.ai.sdkdemo.util.PerssionManager;
+
+import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
+import com.rokid.ai.sdkdemo.presenter.AsrControlPresenterImpl;
+import com.rokid.ai.sdkdemo.view.IAsrUiView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onPcmServerPrepared() throws RemoteException {
             if (mPcmClientManager != null) {
-//                mPcmClientManager.startSocket(null, mPcmReceiver);
+//                mPcmClientManager.startSocket(null, mPcmReceiver, 30003);
             }
         }
 
@@ -341,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ServerConfig getServiceConfig() {
         // "workdir_asr_cn": 算法配置文件在assets目录中的位置
-        // "ttc": 算法库配置文件名 eg: device.ttc.cfg -> "ttc"
+        // "ttc": 算法库配置文件名 eg: device.tcl.cfg -> "ttc"
         // useOtherAudio: 是否使用用户自己的audio数据模块
         ServerConfig config = new ServerConfig("workdir_asr_cn", "tcl", false);
         // 设置日志配置

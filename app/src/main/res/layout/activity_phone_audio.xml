@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.rokid.ai.sdkdemo.PhoneAudioActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_other_pickup_open"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="开启拾音"
+            android:onClick="onClick"
+            />
+
+        <Button
+            android:id="@+id/btn_other_pickup_close"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="关闭拾音"
+            android:onClick="onClick"
+            />
+
+        <Button
+            android:id="@+id/btn_other_set_angle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="设置寻向角度"
+            android:onClick="onClick"
+            />
+
+
+        <Button
+            android:id="@+id/btn_other_restart_test"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="重启测试"
+            android:onClick="onClick"
+            />
+
+        <Button
+            android:id="@+id/btn_test_tts"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:textSize="20px"
+            android:layout_marginRight="20px"
+            android:layout_marginLeft="20px"
+            android:text="TTS测试"
+            android:onClick="onClick"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_start_single_phone_audio_new_sdk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40px"
+        android:text="开启单麦"
+        android:onClick="onClick"
+        />
+    <Button
+        android:id="@+id/btn_start_double_phone_audio_new_sdk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开启双麦"
+        android:onClick="onClick"
+        />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/main_test_tv"
+            android:layout_width="100px"
+            android:layout_height="100px"
+            android:gravity="center"
+            android:textColor="#0066FF"
+            android:textSize="20px" />
+
+        <TextView
+            android:id="@+id/main_total_state_tv"
+            android:layout_width="0px"
+            android:layout_height="100px"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="#0066FF"
+            android:textSize="20px" />
+
+        <TextView
+            android:id="@+id/main_file_state_tv"
+            android:layout_width="0px"
+            android:layout_height="100px"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="#0066FF"
+            android:textSize="20px" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/main_ast_pcm_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.5"
+        android:gravity="center_vertical"
+        android:paddingLeft="20px"
+        android:textColor="#0066FF"
+        android:textSize="20px" />
+
+    <TextView
+        android:id="@+id/main_ast_activation_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.5"
+        android:gravity="center_vertical"
+        android:paddingLeft="20px"
+        android:textColor="#000000"
+        android:textSize="20px" />
+
+
+    <TextView
+        android:id="@+id/main_ast_state_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="20px"
+        android:textColor="#6200EE"
+        android:textSize="14px" />
+
+    <TextView
+        android:id="@+id/main_ast_result_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="3"
+        android:gravity="center_vertical"
+        android:paddingLeft="20px"
+        android:textColor="#ff4d4d"
+        android:textSize="25px" />
+
+    <TextView
+        android:id="@+id/main_ast_npl_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="16px"
+        android:textColor="#009900"
+        android:textSize="14px" />
+
+    <TextView
+        android:id="@+id/main_ast_action_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="16px"
+        android:textColor="#018786"
+        android:textSize="14px" />
+
+    <TextView
+        android:id="@+id/main_ast_error_tv"
+        android:layout_width="match_parent"
+        android:layout_height="0px"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="15px" />
+
+
+
+</LinearLayout>
