@@ -8,72 +8,58 @@
     tools:context="com.rokid.ai.sdkdemo.SplashActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_main"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="Rokid音频模组(压制)" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_main_igore_volume"
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/btn_bsp_stop_server"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:onClick="onClick"
+                    android:padding="10dp"
+                    android:background="@drawable/btn_bg"
+                    android:text="结束服务进程" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="Rokid音频模组(不压制)" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_other_audio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="无Rokid音频模组(文件 channel num: 4/6)" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/btn_phone_audio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:padding="10dp"
+                    android:onClick="onClick"
+                    android:background="@drawable/btn_bg"
+                    android:text="手机等使用 channel: 1/2" />
+            </RelativeLayout>
 
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_phone_audio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:padding="10dp"
-            android:onClick="onClick"
-            android:background="@drawable/btn_bg"
-            android:text="无Rokid音频模组(手机 channel: 1/2)" />
-
-        <Button
-            android:id="@+id/btn_repeat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="Activity 重复测试" />
-
-        <Button
-            android:id="@+id/btn_bsp_stop_server"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:onClick="onClick"
-            android:padding="10dp"
-            android:background="@drawable/btn_bg"
-            android:text="结束服务进程" />
     </LinearLayout>
-
 
 </RelativeLayout>

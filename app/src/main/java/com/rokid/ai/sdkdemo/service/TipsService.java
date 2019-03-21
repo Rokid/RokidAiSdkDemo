@@ -127,14 +127,14 @@ public class TipsService extends Service {
         private String mListenerKey = FileUtil.getStringID();
 
         @Override
-        public void onIntermediateSlice(int id, String asr) {
-            Logger.d(TAG, "onIntermediateSlice(): id = " + id + ", asr = " + asr);
+        public void onIntermediateSlice(int id, String asr, boolean isLocal) {
+            Logger.d(TAG, "onIntermediateSlice(): " + (isLocal ? "LOCAL" : "NET") + " id = " + id + ", asr = " + asr);
 
         }
 
         @Override
-        public void onIntermediateEntire(int id, final String asr) {
-            Logger.d(TAG, "onIntermediateEntire(): id = " + id + ", asr = " + asr);
+        public void onIntermediateEntire(int id, final String asr, boolean isLocal) {
+            Logger.d(TAG, "onIntermediateEntire(): " + (isLocal ? "LOCAL" : "NET") + " id = " + id + ", asr = " + asr);
             mToastHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -144,15 +144,15 @@ public class TipsService extends Service {
         }
 
         @Override
-        public void onCompleteNlp(int id, String nlp, String action) {
-            Logger.d(TAG, "onCompleteNlp(): id = " + id + ", nlp = " + nlp + "\n action = " + action);
+        public void onCompleteNlp(int id, String nlp, String action, boolean isLocal) {
+            Logger.d(TAG, "onCompleteNlp(): " + (isLocal ? "LOCAL" : "NET") + " id = " + id + ", nlp = " + nlp + "\n action = " + action);
 
         }
 
         @Override
-        public void onVoiceEvent(int id, int event, float sl, float energy) {
+        public void onVoiceEvent(int id, int event, float sl, float energy, String extra) {
 //            Logger.d(TAG, "onVoiceEvent Thread：" + Thread.currentThread().getName());
-            Logger.d(TAG, "onVoiceEvent(): id = " + id + ", event = " + event + ", sl = " + sl + ", energy = " + energy);
+            Logger.d(TAG, "onVoiceEvent(): id = " + id + ", event = " + event + ", sl = " + sl + ", energy = " + energy + ", extra = " + extra + "\n\r");
 
         }
 
@@ -187,6 +187,12 @@ public class TipsService extends Service {
         public boolean interceptCloudNlpControl(int id, String nlp, String action) throws RemoteException {
             Logger.d(TAG,"interceptCloudNlpControl(): called");
             return false;
+        }
+
+        @Override
+        public void onVerifyFailed(String deviceTypeId, String deviceId, String seed, String mac) throws RemoteException {
+            Logger.d(TAG,"onVerifyFailed(): deviceTypeId = " + deviceTypeId +
+                    "，deviceId = " + deviceId + "，seed = " + seed + "，mac = " + mac);
         }
     };
 

@@ -3,8 +3,8 @@ package com.rokid.ai.sdkdemo.presenter;
 import android.content.Context;
 
 import com.rokid.ai.sdkdemo.PhoneAudioActivity;
-import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.model.IMediaPlayManager;
+import com.rokid.ai.sdkdemo.model.MediaPlayManagerImpl;
 import com.rokid.ai.sdkdemo.util.LimitQueue;
 import com.rokid.ai.sdkdemo.view.IAsrUiView;
 import com.rokid.voicerec.VoiceRecognize;
@@ -66,7 +66,7 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     }
 
     @Override
-    public void showAsrResultText(int id, String str, boolean isFinish) {
+    public void showAsrResultText(int id, String str, boolean isFinish, boolean isLocal) {
 
         if (useToast) {
             StringBuilder builder = new StringBuilder();
@@ -74,6 +74,11 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
             builder.append(mTimeFormatter.format(new Date()) + "    ");
             builder.append("会话ID: ");
             builder.append(id + "    ");
+            if (isLocal) {
+                builder.append(" 本地 ");
+            } else {
+                builder.append(" 在线 ");
+            }
             if (isFinish) {
                 builder.append("最终结果: ");
             } else {
@@ -183,10 +188,10 @@ public class AsrControlPresenterImpl implements AsrControlPresenter {
     }
 
     @Override
-    public void showAsrNlpText(int id, String nlp, String action) {
+    public void showAsrNlpText(int id, String nlp, String action, boolean isLocal) {
         if (mAsrUiView != null) {
-            String sNlp = "NLP_" + id + ": " + nlp;
-            String sAction = "ACTION_" + id + ": " + action;
+            String sNlp = isLocal ? "LOCAL_" : "NET_" + "NLP_" + id + ": " + nlp;
+            String sAction = isLocal ? "LOCAL_" : "NET_" + "ACTION_" + id + ": " + action;
             mAsrUiView.showAsrNlpText(sNlp, sAction);
         }
     }

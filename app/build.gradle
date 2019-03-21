@@ -33,16 +33,22 @@ android {
             dirs 'libs'
         }
     }
+
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/librlog.so'
+        pickFirst 'lib/armeabi-v7a/libcaps.so'
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation (name:'rokid_ai_basic_release_1.3.1', ext:'aar')
-    implementation (name:'rokid_ai_turenso_release_1.3.1', ext:'aar')
-    implementation (name:'rokid_nlp_consumer_release_1.3.1', ext:'aar')
-    implementation (name:'rokid_ai_sdk_release_1.3.1', ext:'aar')
-    implementation "io.reactivex.rxjava2:rxjava:2.1.12"
+    implementation (name:'basic-1.4.0', ext:'aar')
+    implementation (name:'turenso-1.4.0', ext:'aar')
+    implementation (name:'nlpconsumer-1.4.0', ext:'aar')
+    implementation (name:'audioai-1.4.0', ext:'aar')
+    implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation "io.reactivex.rxjava2:rxjava:2.1.12"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

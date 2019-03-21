@@ -25,8 +25,10 @@ public interface AsrControlPresenter {
      *
      * @param id  会话ID
      * @param str 数据信息
+     * @param isFinish 是否是最终结果
+     * @param isLocal 是否是本地结果
      */
-    void showAsrResultText(int id, String str, boolean isFinish);
+    void showAsrResultText(int id, String str, boolean isFinish, boolean isLocal);
 
     /**
      * 展示ASR事件信息
@@ -51,6 +53,7 @@ public interface AsrControlPresenter {
      * @param id  会话ID
      * @param nlp 自然语义解析结果
      * @param action 云端skill结果
+     * @param isLocal 是否是本地结果
      */
-    void showAsrNlpText(int id, String nlp, String action);
+    void showAsrNlpText(int id, String nlp, String action, boolean isLocal);
 }

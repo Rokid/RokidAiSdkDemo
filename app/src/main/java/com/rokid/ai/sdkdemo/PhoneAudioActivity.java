@@ -20,10 +20,10 @@ import com.rokid.ai.basic.AudioAiConfig;
 import com.rokid.ai.basic.aidl.IRokidAudioAiListener;
 import com.rokid.ai.basic.aidl.IRokidAudioAiService;
 import com.rokid.ai.basic.aidl.ServerConfig;
-import com.rokid.ai.sdkdemo.pickup.IReceiverPickPcmListener;
-import com.rokid.ai.sdkdemo.pickup.PickPcmClientManager;
-import com.rokid.ai.socket.base.ClientSocketManager;
-import com.rokid.ai.socket.business.record.RecordClientManager;
+import com.rokid.ai.basic.socket.base.ClientSocketManager;
+import com.rokid.ai.basic.socket.business.preprocess.IReceiverPcmListener;
+import com.rokid.ai.basic.socket.business.preprocess.PcmClientManager;
+import com.rokid.ai.basic.socket.business.record.RecordClientManager;
 import com.rokid.ai.basic.util.FileUtil;
 import com.rokid.ai.basic.util.Logger;
 import com.rokid.ai.sdkdemo.presenter.AsrControlPresenter;
@@ -76,7 +76,7 @@ public class PhoneAudioActivity extends AppCompatActivity {
 
     private RecordClientManager mRecordClientManager;
 
-    private PickPcmClientManager mPickPcmSocketManager;
+    private PcmClientManager mPcmSocketManager;
 
     private Intent mServiceIntent;
     private ServerConfig mServerConfig;
@@ -94,8 +94,8 @@ public class PhoneAudioActivity extends AppCompatActivity {
         requestPermission();
 
         mServiceIntent = AudioAiConfig.getIndependentIntent(this);
-        mRecordClientManager = new RecordClientManager();
-        mPickPcmSocketManager = new PickPcmClientManager();
+        mRecordClientManager = new RecordClientManager(getApplicationContext());
+        mPcmSocketManager = new PcmClientManager(getApplicationContext());
     }
 
 
@@ -149,7 +149,7 @@ public class PhoneAudioActivity extends AppCompatActivity {
     }
 
 
-     public void requestPermission() {
+    public void requestPermission() {
         PerssionManager.requestPerrion(this);
     }
 
@@ -207,43 +207,43 @@ public class PhoneAudioActivity extends AppCompatActivity {
         private String mListenerKey = FileUtil.getStringID();
 
         @Override
-        public void onIntermediateSlice(int id, String asr) throws RemoteException {
-            String s = "onIntermediateSlice(): asr = " + asr;
+        public void onIntermediateSlice(int id, String asr, boolean isLocal) throws RemoteException {
+            String s = "onIntermediateSlice(): " + (isLocal ? "LOCAL" : "NET") + " asr = " + asr;
             Logger.d(TAG, s);
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(id, asr, false);
+                mAsrControlPresenter.showAsrResultText(id, asr, false, isLocal);
             }
 
         }
 
         @Override
-        public void onIntermediateEntire(int id, String asr) throws RemoteException {
+        public void onIntermediateEntire(int id, String asr, boolean isLocal) throws RemoteException {
 
             final String mTemp = asr;
 
-            Logger.d(TAG, "onIntermediateEntire(): asr = " + asr);
+            Logger.d(TAG, "onIntermediateEntire(): " + (isLocal ? "LOCAL" : "NET") + " asr = " + asr);
 
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrResultText(id, asr, true);
+                mAsrControlPresenter.showAsrResultText(id, asr, true, isLocal);
             }
         }
 
         @Override
-        public void onCompleteNlp(int id, String nlp, String action) throws RemoteException {
+        public void onCompleteNlp(int id, String nlp, String action, boolean isLocal) throws RemoteException {
 
-            Logger.d(TAG, "onCompleteNlp(): nlp = " + nlp + " action = " + action + "\n\r");
+            Logger.d(TAG, "onCompleteNlp(): " + (isLocal ? "LOCAL" : "NET") + " nlp = " + nlp + " action = " + action + "\n\r");
 
             if (mAsrControlPresenter != null) {
-                mAsrControlPresenter.showAsrNlpText(id, nlp, action);
+                mAsrControlPresenter.showAsrNlpText(id, nlp, action, isLocal);
             }
 
         }
 
         @Override
-        public void onVoiceEvent(int id, int event, float sl, float energy) throws RemoteException {
+        public void onVoiceEvent(int id, int event, float sl, float energy, String extra) throws RemoteException {
 
 
-            String s = "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + "\n\r";
+            String s = "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + ", extra = " + extra + "\n\r";
             Logger.d(TAG, s);
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showAsrEvent(id, event, sl, energy);
@@ -307,7 +307,7 @@ public class PhoneAudioActivity extends AppCompatActivity {
                         while (isRecording) {
                             bufferReadResult = mAudioRecord.read(buffer, 0, bufferSize);
                             if (mCanSendPcm) {
-//                                Logger.d(TAG, "sendRecordData data is" + bufferSize);
+//                                Logger.d(TAG, "sendRecordData data is" + recordBufferSize);
                                 if (mRecordClientManager != null) {
                                     mRecordClientManager.sendRecordData(buffer);
                                 }
@@ -323,8 +323,8 @@ public class PhoneAudioActivity extends AppCompatActivity {
         @Override
         public void onPcmServerPrepared() throws RemoteException {
             Logger.d(TAG,"onPcmServerPrepared(): called");
-            if (mPickPcmSocketManager != null) {
-//                mPickPcmSocketManager.startSocket(null, mPcmReceiver, 30003);
+            if (mPcmSocketManager != null) {
+                mPcmSocketManager.startSocket(null, mPcmReceiver, 30003);
             }
         }
 
@@ -343,26 +343,20 @@ public class PhoneAudioActivity extends AppCompatActivity {
             Logger.d(TAG,"interceptCloudNlpControl(): called");
             return false;
         }
+
+        @Override
+        public void onVerifyFailed(String deviceTypeId, String deviceId, String seed, String mac) throws RemoteException {
+            Logger.d(TAG,"onVerifyFailed(): deviceTypeId = " + deviceTypeId +
+                    "，deviceId = " + deviceId + "，seed = " + seed + "，mac = " + mac);
+        }
     };
 
-    private IReceiverPickPcmListener mPcmReceiver = new IReceiverPickPcmListener() {
+    private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {
         @Override
         public void onPcmReceive(int length, byte[] data) {
 //            Logger.d(TAG, "onPcmReceive(): onPcmReceive len = " + length + "\n\r");
             showPcmData(length, data);
 //            SaveFile.saveTotalFile(data);
-        }
-
-        @Override
-        public void onActivationReceive(int length, byte[] data, int totalLength) {
-//            Logger.d(TAG, "onPcmReceive(): onActivationReceive len = " + length + ", totalLength = " + totalLength + "\n\r");
-//            SaveFile.saveActivationFile(data);
-        }
-
-        @Override
-        public void onPickupReceive(int length, byte[] data) {
-//            Logger.d(TAG, "onPcmReceive(): onPickupReceive len = " + length + "\n\r");
-//            SaveFile.savePickupFile(data);
         }
     };
 
@@ -371,25 +365,42 @@ public class PhoneAudioActivity extends AppCompatActivity {
         ServerConfig config = null;
         if(status == 0) {
             config = new ServerConfig(
-                    "workdir_asr_cn", "phonetest", true);
+                    "workdir_asr_cn", "lothal_single.ini", true);
         } else if(status == 1) {
             config = new ServerConfig(
-                    "workdir_asr_cn", "phonetest2", true);
+                    "workdir_asr_cn", "lothal_double.ini", true);
         }
 
         config.setLogConfig(Logger.LEVEL_D, true, true);
-        String key = "BBF450D04CC14DBD88E960CF5D4DD697";
-        String secret = "29F84556B84441FC885300CD6A85CA70";
-        String deviceTypeId = "3301A6600C6D44ADA27A5E58F5838E02";
-        String deviceId = "57E741770A1241CP";
         String ignoreMoveConfig = "false";
+
+//        String key = "BBF450D04CC14DBD88E960CF5D4DD697";
+//        String secret = "29F84556B84441FC885300CD6A85CA70";
+//        String deviceTypeId = "3301A6600C6D44ADA27A5E58F5838E02";
+//        String deviceId = "57E741770A1241CP";
 
 //        String key = "68FD6D931763410F877BB1DB0B890500";
 //        String secret = "9B81969BE3684BBCBAD58517FF716DD3";
 //        String deviceTypeId = "E9555B6A8FBB4EF0A6584721E630C223";
 //        String deviceId = "WTSLotus8320008";
 
-        config.setKey(key).setSecret(secret).setDeviceTypeId(deviceTypeId).setDeviceId(deviceId);
+        String key = "2FA1968AE2B14942BA56D3B874A9C5B0";
+        String secret = "3540CBB498DB4D348E8AD784B21DD7D1";
+        String deviceTypeId = "0ABA0AA4F71949C4A3FB0418BF025113";
+        String deviceId = "0502031835000134";
+        String seed = "gQ5H5k0936G71077KZ1Xzy7Y7A71z9";
+        String macAddress = "6C:21:A2:2B:64:21";
+//        String macAddress = "6c:21:a2:2b:64:21";
+
+//        String key = "D86CAEF3A5D14FB8B3D798893AFF58C0";
+//        String secret = "82D2FA0E7F5044B18EB7ADF3C6789BD0";
+//        String deviceTypeId = "EB420DF132954FFF840737F42D6E786A";
+//        String deviceId = "B8919B4608AA40EF87E223E27EFF8ABE";
+//        String seed = "ddae8ddaf4561f0637bb47fb41e8b5";
+
+        config.setKey(key).setSecret(secret).setDeviceTypeId(deviceTypeId).setDeviceId(deviceId)
+                .setSeed(seed);
+        config.setMacAddress(macAddress);
 
         if ("true".equals(ignoreMoveConfig)) {
             // 忽略移动文件
@@ -399,9 +410,15 @@ public class PhoneAudioActivity extends AppCompatActivity {
             config.setIgnoreSuppressAudioVolume(true);
         }
 
+//        config.setNotUseWifi(true);
+
+        config.setGlassWays(true);
         // 使用语音处理软件处理NLP技能
         config.setUseNlpConsumer(true);
 //        config.setUseTurenProc(true);
+
+        config.setUseOffLine(true);
+//        config.setUseSpeech(false);
 
         return config;
     }
@@ -546,8 +563,8 @@ public class PhoneAudioActivity extends AppCompatActivity {
         } catch (Throwable e) {
         }
 
-        mPickPcmSocketManager.onDestroy();
-        mPickPcmSocketManager = null;
+        mPcmSocketManager.onDestroy();
+        mPcmSocketManager = null;
 
         mRecordClientManager.onDestroy();
         mRecordClientManager = null;
@@ -615,6 +632,15 @@ public class PhoneAudioActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.btn_other_restart_test:
+                try {
+                    if (mAudioAiService != null) {
+                        mAudioAiService.setAngle(55555);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.btn_other_restart_turen:
                 try {
                     if (mAudioAiService != null) {
                         mAudioAiService.setAngle(11111);
