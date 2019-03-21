@@ -36,8 +36,6 @@ import java.io.File;
 public class PhoneAudioActivity extends AppCompatActivity {
 
     private IRokidAudioAiService mAudioAiService;
-    private final static String CONFIG_FILE_NAME = "Rokid_Ai_SDK_Config.txt";
-    public static final String IGNORE_SUPPRESS_AUDIO_VOLUME = "Ignore_Suppress_Audio_Volume";
     private static final String TAG = PhoneAudioActivity.class.getSimpleName();
     private boolean mIgnoreSuppressAudioVolume = false;
     private AsrControlPresenter mAsrControlPresenter;
@@ -69,8 +67,6 @@ public class PhoneAudioActivity extends AppCompatActivity {
     private boolean mCanSendPcm;
 
     private boolean isRecording;
-
-    private boolean isBindService;
 
     private ServiceConnection mAiServiceConnection;
 
@@ -166,7 +162,6 @@ public class PhoneAudioActivity extends AppCompatActivity {
         mAiServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                isBindService = true;
                 Logger.d(TAG, "the onServiceConenct is called");
                 if (service != null) {
                     Logger.d(TAG, "the onServiceConenct is called111");
@@ -374,16 +369,6 @@ public class PhoneAudioActivity extends AppCompatActivity {
         config.setLogConfig(Logger.LEVEL_D, true, true);
         String ignoreMoveConfig = "false";
 
-//        String key = "BBF450D04CC14DBD88E960CF5D4DD697";
-//        String secret = "29F84556B84441FC885300CD6A85CA70";
-//        String deviceTypeId = "3301A6600C6D44ADA27A5E58F5838E02";
-//        String deviceId = "57E741770A1241CP";
-
-//        String key = "68FD6D931763410F877BB1DB0B890500";
-//        String secret = "9B81969BE3684BBCBAD58517FF716DD3";
-//        String deviceTypeId = "E9555B6A8FBB4EF0A6584721E630C223";
-//        String deviceId = "WTSLotus8320008";
-
         String key = "2FA1968AE2B14942BA56D3B874A9C5B0";
         String secret = "3540CBB498DB4D348E8AD784B21DD7D1";
         String deviceTypeId = "0ABA0AA4F71949C4A3FB0418BF025113";
@@ -391,12 +376,6 @@ public class PhoneAudioActivity extends AppCompatActivity {
         String seed = "gQ5H5k0936G71077KZ1Xzy7Y7A71z9";
         String macAddress = "6C:21:A2:2B:64:21";
 //        String macAddress = "6c:21:a2:2b:64:21";
-
-//        String key = "D86CAEF3A5D14FB8B3D798893AFF58C0";
-//        String secret = "82D2FA0E7F5044B18EB7ADF3C6789BD0";
-//        String deviceTypeId = "EB420DF132954FFF840737F42D6E786A";
-//        String deviceId = "B8919B4608AA40EF87E223E27EFF8ABE";
-//        String seed = "ddae8ddaf4561f0637bb47fb41e8b5";
 
         config.setKey(key).setSecret(secret).setDeviceTypeId(deviceTypeId).setDeviceId(deviceId)
                 .setSeed(seed);
