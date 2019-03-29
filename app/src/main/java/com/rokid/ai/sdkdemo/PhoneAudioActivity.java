@@ -35,13 +35,12 @@ import java.io.File;
 
 public class PhoneAudioActivity extends AppCompatActivity {
 
-    private IRokidAudioAiService mAudioAiService;
     private static final String TAG = PhoneAudioActivity.class.getSimpleName();
-    private boolean mIgnoreSuppressAudioVolume = false;
+
+    private IRokidAudioAiService mAudioAiService;
     private AsrControlPresenter mAsrControlPresenter;
     private Context mContext = null;
     private int mSingleDoubleStatus;
-
 
     private TextView mAsrStateTV;
     private TextView mAsrResultTv;
@@ -201,21 +200,33 @@ public class PhoneAudioActivity extends AppCompatActivity {
 
         private String mListenerKey = FileUtil.getStringID();
 
+        /**
+         * 返回语音识别中间结果片段
+         *
+         * @param id 会话ID：一次激活开始到识别结束，nlp或error返回过程中的统一识别ID
+         * @param asr asr String 数据
+         * @param isLocal 是否是本地离线识别 true：离线识别，false：有网络在线识别
+         * @throws RemoteException
+         */
         @Override
         public void onIntermediateSlice(int id, String asr, boolean isLocal) throws RemoteException {
-            String s = "onIntermediateSlice(): " + (isLocal ? "LOCAL" : "NET") + " asr = " + asr;
-            Logger.d(TAG, s);
+            Logger.d(TAG, "onIntermediateSlice(): " + (isLocal ? "LOCAL" : "NET") + " asr = " + asr);
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showAsrResultText(id, asr, false, isLocal);
             }
 
         }
 
+        /**
+         * 返回语音识别最终结果完整的数据
+         *
+         * @param id 会话ID：一次激活开始到识别结束，nlp或error返回过程中的统一识别ID
+         * @param asr asr String 数据
+         * @param isLocal 是否是本地离线识别 true：离线识别，false：有网络在线识别
+         * @throws RemoteException
+         */
         @Override
         public void onIntermediateEntire(int id, String asr, boolean isLocal) throws RemoteException {
-
-            final String mTemp = asr;
-
             Logger.d(TAG, "onIntermediateEntire(): " + (isLocal ? "LOCAL" : "NET") + " asr = " + asr);
 
             if (mAsrControlPresenter != null) {
@@ -223,9 +234,17 @@ public class PhoneAudioActivity extends AppCompatActivity {
             }
         }
 
+        /**
+         * 返回语音识别技能结果nlp、action
+         *
+         * @param id 会话ID：一次激活开始到识别结束，nlp或error返回过程中的统一识别ID
+         * @param nlp 技能结果nlp
+         * @param action 技能结果action，Rokid云技能使用
+         * @param isLocal 是否是本地离线识别 true：离线识别，false：有网络在线识别
+         * @throws RemoteException
+         */
         @Override
         public void onCompleteNlp(int id, String nlp, String action, boolean isLocal) throws RemoteException {
-
             Logger.d(TAG, "onCompleteNlp(): " + (isLocal ? "LOCAL" : "NET") + " nlp = " + nlp + " action = " + action + "\n\r");
 
             if (mAsrControlPresenter != null) {
@@ -234,22 +253,34 @@ public class PhoneAudioActivity extends AppCompatActivity {
 
         }
 
+        /**
+         * 返回语音唤醒事件
+         *
+         * @param id 会话ID：一次激活开始到识别结束，nlp或error返回过程中的统一识别ID
+         * @param event 事件号 语音事件类型VoiceRecognize.Event的ordinal()值
+         * @param sl  当前唤醒角度(0到360度之间)
+         * @param energy 当前说话能量值(0到1之间的浮点数)
+         * @param extra 其他事件的附加信息
+         * @throws RemoteException
+         */
         @Override
         public void onVoiceEvent(int id, int event, float sl, float energy, String extra) throws RemoteException {
-
-
-            String s = "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + ", extra = " + extra + "\n\r";
-            Logger.d(TAG, s);
+            Logger.d(TAG, "onVoiceEvent(): event = " + event + ", sl = " + sl + ", energy = " + energy + ", extra = " + extra + "\n\r");
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showAsrEvent(id, event, sl, energy);
             }
         }
 
+        /**
+         * 返回语音识别出错信息
+         *
+         * @param id 会话ID：一次激活开始到识别结束，nlp或error返回过程中的统一识别ID
+         * @param errorCode 错误码 VoiceRecognize.ExceptionCode的ordinal()值
+         * @throws RemoteException
+         */
         @Override
         public void onRecognizeError(int id, int errorCode) throws RemoteException {
-
-            String s = "onRecognizeError(): errorCode = " + errorCode + "\n\r";
-            Logger.d(TAG, s);
+            Logger.d(TAG, "onRecognizeError(): errorCode = " + errorCode + "\n\r");
             if (mAsrControlPresenter != null) {
                 mAsrControlPresenter.showRecognizeError(errorCode);
             }
@@ -258,7 +289,6 @@ public class PhoneAudioActivity extends AppCompatActivity {
 
         @Override
         public void onServerSocketCreate(String ip, int port) throws RemoteException {
-
             Logger.d(TAG,"onServerSocketCreate(): ip = " + ip + ", port = " + port);
             if (mRecordClientManager != null) {
                 mRecordClientManager.startSocket(ip, port, mConnnectListener);
@@ -339,6 +369,15 @@ public class PhoneAudioActivity extends AppCompatActivity {
             return false;
         }
 
+        /**
+         * 校验失败回调
+         *
+         * @param deviceTypeId 设备deviceTypeId
+         * @param deviceId 设备deviceId
+         * @param seed 设备seed
+         * @param mac 设备真实mac
+         * @throws RemoteException
+         */
         @Override
         public void onVerifyFailed(String deviceTypeId, String deviceId, String seed, String mac) throws RemoteException {
             Logger.d(TAG,"onVerifyFailed(): deviceTypeId = " + deviceTypeId +
@@ -358,45 +397,44 @@ public class PhoneAudioActivity extends AppCompatActivity {
     private ServerConfig getServiceConfig(int status) {
 
         ServerConfig config = null;
+        // Android 的 AudioRecord 录音最多只支持2个麦克风
         if(status == 0) {
-            config = new ServerConfig(
-                    "workdir_asr_cn", "lothal_single.ini", true);
+            // 使用一个麦克风配置
+            config = new ServerConfig("workdir_asr_cn", "lothal_single.ini", true);
         } else if(status == 1) {
-            config = new ServerConfig(
-                    "workdir_asr_cn", "lothal_double.ini", true);
+            // 使用两个个麦克风配置
+            config = new ServerConfig("workdir_asr_cn", "lothal_double.ini", true);
         }
 
         config.setLogConfig(Logger.LEVEL_D, true, true);
-        String ignoreMoveConfig = "false";
 
+        // key: Rokid开放平台注册时生成的Key
         String key = "2FA1968AE2B14942BA56D3B874A9C5B0";
+        // secret: Rokid开放平台注册时生成的Secret
         String secret = "3540CBB498DB4D348E8AD784B21DD7D1";
+        // deviceTypeId: Rokid开放平台注册时生成的DeviceTypeId
         String deviceTypeId = "0ABA0AA4F71949C4A3FB0418BF025113";
+        // deviceId: 设备SN号，由6~15位的字母和数字组成，不能含有空格和特殊符号
         String deviceId = "0502031835000134";
+        // seed: 设备seed号，跟rokid设备账号绑定时使用
         String seed = "gQ5H5k0936G71077KZ1Xzy7Y7A71z9";
-        String macAddress = "6C:21:A2:2B:64:21";
-//        String macAddress = "6c:21:a2:2b:64:21";
+
+//        String key = "D86CAEF3A5D14FB8B3D798893AFF58C0";
+//        String secret = "82D2FA0E7F5044B18EB7ADF3C6789BD0";
+//        String deviceTypeId = "EB420DF132954FFF840737F42D6E786A";
+//        String deviceId = "B8919B4608AA40EF87E223E27EFF8ABE";
+//        String seed = "ddae8ddaf4561f0637bb47fb41e8b5";
 
         config.setKey(key).setSecret(secret).setDeviceTypeId(deviceTypeId).setDeviceId(deviceId)
                 .setSeed(seed);
-        config.setMacAddress(macAddress);
 
-        if ("true".equals(ignoreMoveConfig)) {
-            // 忽略移动文件
-            config.setIgnoreMoveConfig(true);
-        }
-        if (mIgnoreSuppressAudioVolume) {
-            config.setIgnoreSuppressAudioVolume(true);
-        }
-
-//        config.setNotUseWifi(true);
-
-        config.setGlassWays(true);
         // 使用语音处理软件处理NLP技能
         config.setUseNlpConsumer(true);
+
+//        config.setUseOffLine(true);
+
 //        config.setUseTurenProc(true);
 
-        config.setUseOffLine(true);
 //        config.setUseSpeech(false);
 
         return config;

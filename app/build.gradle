@@ -6,8 +6,8 @@ android {
         applicationId 'com.rokid.ai.sdkdemo'
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 14
-        versionName "1.4.0"
+        versionCode 15
+        versionName "1.4.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi-v7a"
@@ -42,10 +42,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation (name:'basic-1.4.0', ext:'aar')
-    implementation (name:'turenso-1.4.0', ext:'aar')
-    implementation (name:'nlpconsumer-1.4.0', ext:'aar')
-    implementation (name:'audioai-1.4.0', ext:'aar')
+    implementation (name:'basic-1.4.1', ext:'aar')
+    implementation (name:'turenso-1.4.1', ext:'aar')
+    implementation (name:'nlpconsumer-1.4.1', ext:'aar')
+    implementation (name:'audioai-1.4.1', ext:'aar')
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation "io.reactivex.rxjava2:rxjava:2.1.12"
