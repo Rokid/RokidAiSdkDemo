@@ -383,6 +383,11 @@ public class PhoneAudioActivity extends AppCompatActivity {
             Logger.d(TAG,"onVerifyFailed(): deviceTypeId = " + deviceTypeId +
                     "，deviceId = " + deviceId + "，seed = " + seed + "，mac = " + mac);
         }
+
+        @Override
+        public void onRecogniseStatusChange(boolean b) throws RemoteException {
+
+        }
     };
 
     private IReceiverPcmListener mPcmReceiver = new IReceiverPcmListener() {

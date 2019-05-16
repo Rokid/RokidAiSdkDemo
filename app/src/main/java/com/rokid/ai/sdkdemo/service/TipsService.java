@@ -194,6 +194,11 @@ public class TipsService extends Service {
             Logger.d(TAG,"onVerifyFailed(): deviceTypeId = " + deviceTypeId +
                     "，deviceId = " + deviceId + "，seed = " + seed + "，mac = " + mac);
         }
+
+        @Override
+        public void onRecogniseStatusChange(boolean b) throws RemoteException {
+
+        }
     };
 
     public void registListener() {
